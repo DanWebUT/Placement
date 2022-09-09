@@ -262,7 +262,7 @@ def main():
     
     for lines in outer_planner:
         for line in lines:
-            print(line)
+-            print(line)
             print(" ")
     
     outer_planner = extend_elements(outer_planner)
