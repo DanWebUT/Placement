@@ -1,9 +1,9 @@
 ---
 GOAL:
-- !!python/tuple [540, 565]
+- !!python/tuple [840, 165]
 - !!python/tuple [835, 565]
 - !!python/tuple [1080, 565]
-- !!python/tuple [1370, 565]
+- !!python/tuple [1530, 165]
 GRID_SIZE: 30
 RECT_OBSTACLES:
   0:
