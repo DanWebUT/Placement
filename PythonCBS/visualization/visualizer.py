@@ -17,7 +17,7 @@ class Simulator:
 
     def __init__(self):
         # Set up a white 1080p canvas
-        self.canvas = np.ones((1080,1920,3), np.uint8)*255 
+        self.canvas = np.ones((1200,3200,3), np.uint8)*255 
         # Draw the rectangluar obstacles on canvas
         self.draw_rect(np.array([np.array(v) for v in RECT_OBSTACLES.values()]))
 
@@ -128,7 +128,7 @@ def load_scenario(fd):
 Use this function to show your START/GOAL configurations
 '''
 def show_pos(pos):
-    cv2.namedWindow('frame', cv2.WINDOW_NORMAL)
+    cv2.namedWindow('frame', cv2.WINDOWs_NORMAL)
     cv2.resizeWindow('frame', (1280, 720))
     frame = np.ones((1080,1920,3), np.uint8)*255
     for x, y in pos:
@@ -141,7 +141,7 @@ def show_pos(pos):
 if __name__ == '__main__':
     # From command line, call:
     # python3 visualizer.py scenario1.yaml
-    load_scenario("scenario1.yaml")
+    load_scenario("AMBOTS_floor.yaml")
     # show_pos(START)
     r = Simulator()
     r.start()

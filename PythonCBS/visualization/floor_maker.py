@@ -11,11 +11,11 @@ import yaml
 
 class sizes():
     #size multiplier for floor tiles to mm
-    size_multiplier = 500 #mm
+    size_multiplier = 200 #mm
     #how large the robot is in the visualization
-    robot_size = 5 #mm
+    robot_size = 30 #mm
     #not quite sure, but changes resolution of the visualization
-    grid_size = 25
+    grid_size = 30
 
 def conv_coord(grid_pos_x, grid_pos_y):
     mid = math.floor(sizes.size_multiplier/2)
@@ -46,10 +46,10 @@ def make_floor(num_FT_x, num_FT_y, rob_start_pos, rob_goal_pos, filled_pos):
         file.write("RECT_OBSTACLES:\n")
         
         #Border
-        (x, y, mid) = conv_coord(num_FT_x*2, num_FT_y*2)
+        (x_max, y_max, mid) = conv_coord(num_FT_x*2, num_FT_y*2)
         file.write("  0:\n")
         file.write("  - [" + str(0) + ", " + str(0) + "]\n")
-        file.write("  - [" + str(x) + ", " + str(y) + "]\n")
+        file.write("  - [" + str(x_max) + ", " + str(y_max) + "]\n")
         
         #disallowed areas in the middle of grid spaces
         num_spaces = ((num_FT_x)*(num_FT_y)*4)*2
@@ -59,10 +59,14 @@ def make_floor(num_FT_x, num_FT_y, rob_start_pos, rob_goal_pos, filled_pos):
                 file.write("  " + str(spaces_counter)+ ":\n")
                 spaces_counter += 1
                 (x, y, mid) = conv_coord(i, j)
-                x_start = x - mid + sizes().robot_size*3
-                y_start = y - mid + sizes().robot_size*3
-                x_end = x + mid - sizes().robot_size*3
-                y_end = y + mid - sizes().robot_size*3
+                x_start = int(x - mid + (sizes().robot_size*2))
+                y_start = int(y - mid + (sizes().robot_size*2))
+                x_end = int(x + mid - (sizes().robot_size*2))
+                y_end = int(y + mid - (sizes().robot_size*2))
+                max(0,x_start)
+                max(0,y_start)
+                min(x_max,x_end)
+                min(y_max,y_end)
                 file.write("  - [" + str(x_start) + ", " + str(y_start) + "]\n")
                 file.write("  - [" + str(x_end) + ", " + str(y_end) + "]\n")
         
@@ -90,7 +94,7 @@ def make_floor(num_FT_x, num_FT_y, rob_start_pos, rob_goal_pos, filled_pos):
         
         # yaml.dump(dict_file, file)
     
-rob_start_pos = [[0,0],[1,0]]
-rob_goal_pos = [[1,1],[2,0]]
+rob_start_pos = [[0,0],[0,5]]
+rob_goal_pos = [[12,3],[14,3]]
 filled_pos = [[2,0]]
-make_floor(2, 1, rob_start_pos, rob_goal_pos, filled_pos)
+make_floor(8, 3, rob_start_pos, rob_goal_pos, filled_pos)
