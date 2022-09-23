@@ -4,19 +4,45 @@
 This program will track the steps of the printing process (printing and move
 phase) and call the floor maker and cbs algorithm at each step of the process
 """
-
+from typing import List, Tuple
 import numpy as np
 
 def queue(robot_starting_positions, chunk_info, floor_size):
     
     
+    #Find all printable chunks
+    printable_chunks = independent_chunks(chunk_info)
+    
+    #Find the robot position for all printable chunks
+    printable_chunk_robot_positions = robot_chunk_positions(printable_chunks)
+    
+    #find robot goal positions
+    #First decide which n chunks to print with n robots
+    min_cost(robot_starting_positions, printable_chunk_robot_positions)
     
     robot_ending_positions = []
     total_print_time = 0
     return(robot_ending_positions, total_print_time)
 
+def independent_chunks(chunk_info):
+    #find which chunks have no dependencies
+    for i  in range(0,len(chunk_info)):
+        print(i)
+    printable_chunks = []
+    return(printable_chunks)
 
+def robot_chunk_positions(printable_chunks):
+    
+    printable_chunk_robot_positions = []
+    return(printable_chunk_robot_positions)
+    
 
+def min_cost(robot_positions, printable_chunk_robot_positions):
+    # Finds the closest group of printable chunk positions given the robot positions
+    sqdist = lambda x, y: (x[0]-y[0])**2 + (x[1]-y[1])**2
+    cost_vec = []
+    goal_positions = np.zeros(len(robot_positions))
+    return(goal_positions)
 
 
 #For testing of this method
