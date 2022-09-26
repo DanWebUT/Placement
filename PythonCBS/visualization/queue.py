@@ -91,33 +91,49 @@ def min_cost(robot_positions, printable_chunk_robot_positions):
     sqdist = lambda x, y: (x[0]-y[0])**2 + (x[1]-y[1])**2
     #This is the state of the robot, 0 is awaiting assignment, 1 is assigned
     robot_state = np.zeros(len(robot_positions))
-    chunk_to_robot = [[]]*len(robot_positions)
+    chunk_to_robot = np.zeros([len(robot_positions),len(printable_chunk_robot_positions)])
     for i in range(0, len(robot_positions)):
         for j in range(0,len(printable_chunk_robot_positions)):
             distance = sqdist(robot_positions[i],printable_chunk_robot_positions[j])
-            chunk_to_robot[i].append(distance)
-        
-        
+            chunk_to_robot[i][j] =  distance
+            print(chunk_to_robot[i][j])
+    
     
     while np.min(robot_state) != 1:
-        x = 1
-    cost_vec = []
+        min_val = np.min(chunk_to_robot)
+        index = chunk_to_robot.index(min_val)
+        robot_state[index[1]] = 1
+        
+        for i in range(0, len(robot_positions)):
+            chunk_to_robot[index[0]][i] = 1000
+            
+        for j in range(0,len(printable_chunk_robot_positions)):
+            chunk_to_robot[index[1]][j] = 1000
+        
     goal_positions = np.zeros(len(robot_positions))
-    return(goal_positions)
+    return(chunk_to_robot, goal_positions)
 
 
 
 
 
 #For testing of this method
-robot_starting_positions = [[0,1],[1,0]]
+# robot_starting_positions = [[0,1],[1,0]]
 
 robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
+robot_positions =  robot_starting_positions
 
 floor_size = [8,6]
 
-(robot_ending_positions, total_print_time) =  queue(robot_starting_positions, chunk_info, floor_size)
+    
+    
+#Find all printable chunks
+printable_chunks = independent_chunks(chunk_info)
 
+#Find the robot position for all printable chunks
+printable_chunk_robot_positions = robot_chunk_positions(printable_chunks)
+
+(chunk_to_robot, goal_positions) =  min_cost(robot_starting_positions, printable_chunk_robot_positions)
 
 
 
