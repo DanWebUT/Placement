@@ -128,7 +128,7 @@ def load_scenario(fd):
 Use this function to show your START/GOAL configurations
 '''
 def show_pos(pos):
-    cv2.namedWindow('frame', cv2.WINDOWs_NORMAL)
+    cv2.namedWindow('frame', cv2.WINDOW_NORMAL)
     cv2.resizeWindow('frame', (1280, 720))
     frame = np.ones((1080,1920,3), np.uint8)*255
     for x, y in pos:
