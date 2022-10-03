@@ -93,8 +93,8 @@ def make_floor(num_FT_x, num_FT_y, rob_start_pos, rob_goal_pos, filled_pos):
                        str(y+mid) + "]\n")
         
 
-#For testing of this method        
-rob_start_pos = [[0,0],[0,5]]
-rob_goal_pos = [[12,3],[14,3]]
-filled_pos = [[2,0]]
-make_floor(8, 3, rob_start_pos, rob_goal_pos, filled_pos)
+# #For testing of this method        
+# rob_start_pos = [[0,0],[0,5]]
+# rob_goal_pos = [[12,3],[14,3]]
+# filled_pos = [[2,0]]
+# make_floor(8, 3, rob_start_pos, rob_goal_pos, filled_pos)
