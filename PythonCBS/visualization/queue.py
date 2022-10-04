@@ -213,47 +213,50 @@ def vertices_to_obsts(obsts):
 
 
 #For testing of this method
-# robot_starting_positions = [[0,1],[1,0]]
+def main():
+    # robot_starting_positions = [[0,1],[1,0]]
+    
+    robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
+    robot_positions =  robot_starting_positions
+    
+    floor_size = [8,6]
+    
+    total_print_time = 0
+    static_obstacles = []      
+    
+    #Find all printable chunks
+    printable_chunks = independent_chunks(chunk_global_info)
+    
+    #Find the robot position for all printable chunks
+    printable_chunk_robot_positions = robot_chunk_positions(printable_chunks)
+    
+    (robot_goal_positions, printing_chunks) =  min_cost(robot_starting_positions, printable_chunk_robot_positions, printable_chunks)
+    
+    #Find longest print time of current chunks
+    printing_chunks_time = np.zeros(len(printing_chunks))
+    for i in range(0,len(printing_chunks)):
+        printing_chunks_time[i] = chunk_global_info().chunk_print_time[0][[printing_chunks[i]]]
+    print_time = max(printing_chunks_time)
+    
+    #make floor for this configuration
+    floor_maker.make_floor(floor_size[0], floor_size[1], robot_starting_positions, robot_goal_positions, static_obstacles)
+    
+    
+    
+    # Load Scenario present in floor
+    load_scenario("AMBOTS_floor.yaml")
+    
+    #Create correct format for static_obstacles
+    static_obstacles = vertices_to_obsts(RECT_OBSTACLES)
+    
+    #call cbs-mapf
+    planner_object = planner.Planner(GRID_SIZE, ROBOT_RADIUS, static_obstacles)
+    path = planner_object.plan(START, GOAL, debug=False)
+    
+    return(path)
 
-robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
-robot_positions =  robot_starting_positions
-
-floor_size = [8,6]
-
-total_print_time = 0
-static_obstacles = []      
-
-#Find all printable chunks
-printable_chunks = independent_chunks(chunk_global_info)
-
-#Find the robot position for all printable chunks
-printable_chunk_robot_positions = robot_chunk_positions(printable_chunks)
-
-(robot_goal_positions, printing_chunks) =  min_cost(robot_starting_positions, printable_chunk_robot_positions, printable_chunks)
-
-#Find longest print time of current chunks
-printing_chunks_time = np.zeros(len(printing_chunks))
-for i in range(0,len(printing_chunks)):
-    printing_chunks_time[i] = chunk_global_info().chunk_print_time[0][[printing_chunks[i]]]
-print_time = max(printing_chunks_time)
-
-#make floor for this configuration
-floor_maker.make_floor(floor_size[0], floor_size[1], robot_starting_positions, robot_goal_positions, static_obstacles)
-
-
-
-# Load Scenario present in floor
-load_scenario("AMBOTS_floor.yaml")
-
-#Create correct format for static_obstacles
-static_obstacles = vertices_to_obsts(RECT_OBSTACLES)
-
-#call cbs-mapf
-planner_object = planner.Planner(GRID_SIZE, ROBOT_RADIUS, static_obstacles)
-before = time.time()
-path = planner_object.plan(START, GOAL, debug=False)
-after = time.time()
-print('Time elapsed:', "{:.4f}".format(after-before), 'second(s)')
+if __name__ == '__main__':
+    path = main()
 
  ## for randomchunk generation
 """
