@@ -13,9 +13,10 @@ class sizes():
     #size multiplier for floor tiles to mm
     size_multiplier = 200 #mm
     #how large the robot is in the visualization
-    robot_size = 30 #mm
+    robot_size = 50 #mm
     #not quite sure, but changes resolution of the visualization
-    grid_size = 30
+    grid_size = 25
+    robot_offset = 0
 
 def conv_coord(grid_pos_x, grid_pos_y):
     mid = math.floor(sizes.size_multiplier/2)
@@ -59,10 +60,10 @@ def make_floor(num_FT_x, num_FT_y, rob_start_pos, rob_goal_pos, filled_pos):
                 file.write("  " + str(spaces_counter)+ ":\n")
                 spaces_counter += 1
                 (x, y, mid) = conv_coord(i, j)
-                x_start = int(x - mid + (sizes().robot_size*2))
-                y_start = int(y - mid + (sizes().robot_size*2))
-                x_end = int(x + mid - (sizes().robot_size*2))
-                y_end = int(y + mid - (sizes().robot_size*2))
+                x_start = int(x - mid + (sizes().robot_size*1.25)) + sizes.robot_offset
+                y_start = int(y - mid + (sizes().robot_size*1.25)) + sizes.robot_offset
+                x_end = int(x + mid - (sizes().robot_size*1.25)) + sizes.robot_offset
+                y_end = int(y + mid - (sizes().robot_size*1.25)) + sizes.robot_offset
                 max(0,x_start)
                 max(0,y_start)
                 min(x_max,x_end)
@@ -92,6 +93,7 @@ def make_floor(num_FT_x, num_FT_y, rob_start_pos, rob_goal_pos, filled_pos):
             file.write("- !!python/tuple [" + str(x+mid) + ", " + \
                        str(y+mid) + "]\n")
         
+        return(sizes.size_multiplier)
 
 # #For testing of this method        
 # rob_start_pos = [[0,0],[0,5]]

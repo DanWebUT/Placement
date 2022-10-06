@@ -12,7 +12,12 @@ from cbs_mapf import planner
 import yaml
 import math
 import time
+import path_scrubber
 
+
+class tuning_variables:
+    #the time in minutes it takes for a robot to move from one grid space to another
+    robot_speed = .2
 
 class chunk_global_info:
     #Info on the chunk configuration to be printed that will not change during printing
@@ -67,7 +72,7 @@ def queue(robot_starting_positions, chunk_info, floor_size):
     print_time = max(printing_chunks_time)
     
     #make floor for this configuration
-    floor_maker.make_floor(floor_size[0], floor_size[1], robot_starting_positions, robot_goal_positions, static_obstacles)
+    grid_size_multiplier = floor_maker.make_floor(floor_size[0], floor_size[1], robot_starting_positions, robot_goal_positions, static_obstacles)
     
     static_obstacles = vertices_to_obsts(static_obstacles)
     
@@ -239,10 +244,8 @@ def main():
     print_time = max(printing_chunks_time)
     
     #make floor for this configuration
-    floor_maker.make_floor(floor_size[0], floor_size[1], robot_starting_positions, robot_goal_positions, static_obstacles)
-    
-    
-    
+    grid_size_multiplier = floor_maker.make_floor(floor_size[0], floor_size[1], robot_starting_positions, robot_goal_positions, static_obstacles)
+
     # Load Scenario present in floor
     load_scenario("AMBOTS_floor.yaml")
     
@@ -253,6 +256,14 @@ def main():
     planner_object = planner.Planner(GRID_SIZE, ROBOT_RADIUS, static_obstacles)
     path = planner_object.plan(START, GOAL, debug=False)
     
+    #rework the path to avoid diagonals and calculate path distance
+    (robot_path_lengths,robot_paths,robot_visualize_paths) = path_scrubber.scrub_paths(path)
+    
+    #calculate movement time
+    robot_move_time = (robot_path_lengths/(grid_size_multiplier/GRID_SIZE))*tuning_variables.robot_speed
+    longest_move_time = max(robot_move_time)
+    
+        
     return(path)
 
 if __name__ == '__main__':

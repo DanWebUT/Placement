@@ -9,6 +9,7 @@ from copy import deepcopy
 import cv2
 import numpy as np
 import yaml
+import path_scrubber
 
 from cbs_mapf.planner import Planner
 
@@ -27,9 +28,15 @@ class Simulator:
         # Call cbs-mapf to plan
         self.planner = Planner(GRID_SIZE, ROBOT_RADIUS, static_obstacles)
         before = time.time()
-        self.path = self.planner.plan(START, GOAL, debug=False)
+        prepath = self.planner.plan(START, GOAL, debug=False)
         after = time.time()
         print('Time elapsed:', "{:.4f}".format(after-before), 'second(s)')
+        
+        (robot_path_lengths,robot_paths,robot_visualize_paths) = path_scrubber.scrub_paths(prepath)
+        
+        self.path = robot_visualize_paths
+        print(self.path)
+        
 
         # Assign each agent a colour
         self.colours = self.assign_colour(len(self.path))
