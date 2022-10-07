@@ -53,7 +53,7 @@ def make_floor(num_FT_x, num_FT_y, rob_start_pos, rob_goal_pos, filled_pos):
         file.write("  - [" + str(x_max) + ", " + str(y_max) + "]\n")
         
         #disallowed areas in the middle of grid spaces
-        num_spaces = ((num_FT_x)*(num_FT_y)*4)*2
+        num_spaces = (num_FT_x*2+1)*(num_FT_y*2+1)
         spaces_counter = 1
         for i in range(0,num_FT_x*2+1):
             for j in range(0,num_FT_y*2+1):
@@ -71,17 +71,17 @@ def make_floor(num_FT_x, num_FT_y, rob_start_pos, rob_goal_pos, filled_pos):
                 file.write("  - [" + str(x_start) + ", " + str(y_start) + "]\n")
                 file.write("  - [" + str(x_end) + ", " + str(y_end) + "]\n")
         
-        # #filled chunks
-        # num_chunks = len(filled_pos)
-        # for i in range(0,num_chunks):
-        #     file.write("  " + str(i+num_spaces)+ ":\n")
-        #     (x, y, mid) = conv_coord(filled_pos[i][0], filled_pos[i][1])
-        #     x_start = x - mid
-        #     y_start = y - mid
-        #     x_end = x + mid
-        #     y_end = y + mid
-        #     file.write("  - [" + str(x_start) + ", " + str(y_start) + "]\n")
-        #     file.write("  - [" + str(x_end) + ", " + str(y_end) + "]\n")
+        #filled chunks
+        num_chunks = len(filled_pos)
+        for i in range(0,num_chunks):
+            file.write("  " + str(i+num_spaces)+ ":\n")
+            (x, y, mid) = conv_coord(filled_pos[i][0], filled_pos[i][1])
+            x_start = x
+            y_start = y
+            x_end = x + mid*2
+            y_end = y + mid*2
+            file.write("  - [" + str(x_start) + ", " + str(y_start) + "]\n")
+            file.write("  - [" + str(x_end) + ", " + str(y_end) + "]\n")
             
         #robot radius
         file.write("ROBOT_RADIUS: " + str(sizes().robot_size) + "\n")
