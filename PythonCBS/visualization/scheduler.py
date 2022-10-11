@@ -250,7 +250,7 @@ def main():
     
     while min(chunk_configuration().print_state) <= 0:
     # for iterations in range(0,6):
-        print("Iteration: " +str(iterations))
+        # print("Iteration: " +str(iterations))
         #Find all printable chunks
         printable_chunks = independent_chunks(chunk_global_info)
         # print("Printable chunks" + str(printable_chunks))
@@ -307,18 +307,18 @@ def main():
         
         iterations = iterations + 1
         #end loop
-    print("Schedule: " + str(robot_schedules))
-    print("Total Print Time: " + str(total_print_time))
+    # print("Schedule: " + str(robot_schedules))
+    # print("Total Print Time: " + str(total_print_time))
         
-    output_folder = 
+    # output_folder = 
     
     # return(path, robot_schedules)
     return(total_print_time)
     
     
 
-if __name__ == '__main__':
-    print_time = main()
+# if __name__ == '__main__':
+#     print_time = main()
 
  ## for randomchunk generation
 """
