@@ -148,7 +148,7 @@ def place_chunks(job_starting_posiitons, print_direction, chunk_job, chunk_depen
         
         #calculate restricted positions
         for row in range(0,column_length+1):
-            for column in range(0,row_width):
+            for column in range(0,row_width+1):
                 chunk_position = np.array(chunk_positions[initial_chunks[job]]) + np.array(trans_direction)*column + np.array(job_direction)*row
                 restricted_positions.append([chunk_position[0],chunk_position[1]])
                 
@@ -184,7 +184,7 @@ if __name__ == '__main__':
     direction_pop = [[]]*num_pop
     print_time_pop = [[]]*num_pop
     
-    for individual in range(0,2):
+    for individual in range(0,1):
         chunk_dep_iteration = chunk_dependencies.copy()
         valid_positions = False
         number_attempts = 0
@@ -193,11 +193,13 @@ if __name__ == '__main__':
             (chunk_positions, valid_positions) = place_chunks(job_starting_posiitons, job_directions, chunk_job, chunk_dep_iteration, floor_size)
             number_attempts += 1
             job_directions = job_directions[0]
+            if valid_positions == True:
+                print_direction = scheduler.chunk_print_direction(job_directions, chunk_job)     
+                (total_print_time, path_error) = scheduler.schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
+                if path_error == True:
+                    valid_positions = False
         
         #evaluate results
-        print_direction = scheduler.chunk_print_direction(job_directions, chunk_job)
-                          
-        total_print_time = scheduler.schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
         print("Total Print Time: " + str(total_print_time))
         
         placement_pop[individual] = job_starting_posiitons

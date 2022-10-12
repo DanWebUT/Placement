@@ -283,40 +283,46 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
         planner_object = planner.Planner(GRID_SIZE, ROBOT_RADIUS, static_obstacles)
         path = planner_object.plan(START, GOAL, debug=False)
         
-        #rework the path to avoid diagonals and calculate path distance
-        (robot_path_lengths,robot_paths,robot_visualize_paths) = path_scrubber.scrub_paths(path)
-        
-        #calculate movement time
-        robot_move_time = (robot_path_lengths/(grid_size_multiplier/GRID_SIZE))*tuning_variables.robot_speed
-        longest_move_time = max(robot_move_time)
-        # longest_move_time = 8
-        
-        #mark printed chunks as printed
-        for i in range(0,len(printing_chunks)):
-            print_state[printing_chunks[i]] = 1
-            obstacles.append(chunk_positions[printing_chunks[i]])
-        # print(chunk_configuration().print_state)
-                     
-        #remove dependencies of printed chunks
-        chunk_dependencies = remove_dependencies(chunk_dependencies, printing_chunks)
-        # print(chunk_configuration.chunk_dependencies)
-        
-        #set new robot starting positions
-        robot_starting_positions = robot_goal_positions
-        # print(robot_starting_positions)
-        
-        total_print_time = total_print_time + longest_move_time + print_time
-        
-        
-        iterations = iterations + 1
-        #end loop
+        if path == []:
+            path_error = True
+            print_state = [1]
+            total_print_time = 100000
+        else:
+            path_error = False
+            #rework the path to avoid diagonals and calculate path distance
+            (robot_path_lengths,robot_paths,robot_visualize_paths) = path_scrubber.scrub_paths(path)
+            
+            #calculate movement time
+            robot_move_time = (robot_path_lengths/(grid_size_multiplier/GRID_SIZE))*tuning_variables.robot_speed
+            longest_move_time = max(robot_move_time)
+            # longest_move_time = 8
+            
+            #mark printed chunks as printed
+            for i in range(0,len(printing_chunks)):
+                print_state[printing_chunks[i]] = 1
+                obstacles.append(chunk_positions[printing_chunks[i]])
+            # print(chunk_configuration().print_state)
+                         
+            #remove dependencies of printed chunks
+            chunk_dependencies = remove_dependencies(chunk_dependencies, printing_chunks)
+            # print(chunk_configuration.chunk_dependencies)
+            
+            #set new robot starting positions
+            robot_starting_positions = robot_goal_positions
+            # print(robot_starting_positions)
+            
+            total_print_time = total_print_time + longest_move_time + print_time
+            
+            
+            iterations = iterations + 1
+            #end loop
     # print("Schedule: " + str(robot_schedules))
     # print("Total Print Time: " + str(total_print_time))
         
     # output_folder = 
     
     # return(path, robot_schedules)
-    return(total_print_time)
+    return(total_print_time, path_error)
     
     
 

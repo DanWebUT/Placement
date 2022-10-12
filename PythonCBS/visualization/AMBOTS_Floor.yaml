@@ -1,9 +1,9 @@
 ---
 GOAL:
-- !!python/tuple [500, 1900]
-- !!python/tuple [500, 1300]
-- !!python/tuple [500, 700]
-- !!python/tuple [1500, 500]
+- !!python/tuple [2700, 500]
+- !!python/tuple [2100, 1700]
+- !!python/tuple [1700, 1900]
+- !!python/tuple [900, 1300]
 GRID_SIZE: 25
 RECT_OBSTACLES:
   0:
