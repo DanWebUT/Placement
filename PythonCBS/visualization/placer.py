@@ -9,27 +9,31 @@ a floor size (in floor tiles)
 THIS PLACEMENT METHOD IS ONLY APPLICABLE FOR RECTANGULAR JOBS THAT HAVE THE SAME NUMBER OF
 CHUNKS IN EACH ROW AND COLUMN
 """
-
 ## inputs
 #four equal jobs of 6 chunks
-floor_size = [8,6]
+
 chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
                       [0],[1,8],[2],[3,10],[4],[5,12],[6],[7,14],\
                       [8],[9,16],[10],[11,18],[12],[13,20],[14],[15,22]]
 chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
 chunk_print_time = [89., 82., 89., 84., 85., 80., 83., 87., 86., 81., 82., 87., 84., 64., 67., 78., \
         84., 94., 87., 49., 86., 89., 86., 83.]
+robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
+floor_size = [8,6]
+
+def find_initial_chunks(number_jobs, chunk_dependencies, chunk_job):
+    #identify initial chunks
+    initial_chunks = np.zeros(number_jobs,int) -1
+    for job in range(0,number_jobs):
+        chunk_counter = 0
+        while initial_chunks[job] == -1:
+            if chunk_dependencies[chunk_counter] == [] and chunk_job[chunk_counter][0] == job:
+                initial_chunks[job] = chunk_counter
+            chunk_counter += 1
+    return(initial_chunks)    
     
-#generate random placement
-# def random_placement(floor_size, chunk_dependencies, chunk_job):
-valid_positions = False
-number_attempts = 0
-while valid_positions == False:    
-    valid_positions = True
-    number_chunks = len(chunk_job)
-    chunk_positions = [[]]*number_chunks
-    restricted_positions = []
-    number_jobs = np.max(chunk_job)+1
+def num_chunks_in_job(number_jobs,chunk_job):
+    number_chunks = len(chunk_job)    
     number_chunks_in_job = np.zeros(number_jobs,int)
     for i in range(0,number_chunks):
         if chunk_job[i][0] == 0:
@@ -40,24 +44,22 @@ while valid_positions == False:
             number_chunks_in_job[2] += 1
         elif chunk_job[i][0] == 3:
             number_chunks_in_job[3] += 1
-    
-    #calculate floor size
-    floor_x_max = floor_size[0]*2 - 1
-    floor_y_max = floor_size[1]*2 -1
-    
-    #identify initial chunks
-    initial_chunks = np.zeros(number_jobs,int) -1
-    for job in range(0,number_jobs):
-        chunk_counter = 0
-        while initial_chunks[job] == -1:
-            if chunk_dependencies[chunk_counter] == [] and chunk_job[chunk_counter][0] == job:
-                initial_chunks[job] = chunk_counter
-            chunk_counter += 1
-    
+    return(number_chunks_in_job)
+
+def identify_chunks_in_job(number_jobs, number_chunks, chunk_job):
     #identitfy all chunks in a job
     chunks_in_job = [[]]*number_jobs
     for chunk in range(0,number_chunks):
         chunks_in_job[chunk_job[chunk][0]] = chunks_in_job[chunk_job[chunk][0]] + [chunk]
+    return(chunks_in_job)
+
+#generate random placement
+def random_placement(floor_size, chunk_dependencies, chunk_job):
+    number_jobs = np.max(chunk_job)+1
+    
+    #calculate floor size
+    floor_x_max = floor_size[0]*2 - 1
+    floor_y_max = floor_size[1]*2 -1
     
     #generate random positions for initial chunks
     job_starting_posiitons = np.random.rand(number_jobs,2)
@@ -65,13 +67,32 @@ while valid_positions == False:
     job_starting_posiitons[:,1] *= floor_y_max
     job_starting_posiitons = (np.round(job_starting_posiitons)).astype(int)
     
+    #generate ramdom directions
+    print_direction = (np.round(np.random.rand(1,number_jobs)*3)).astype(int)
+
+    return(job_starting_posiitons, print_direction)
+  
+def place_chunks(job_starting_posiitons, print_direction, chunk_job, chunk_dependencies, floor_size):
+    number_chunks = len(chunk_job)
+    number_jobs = np.max(chunk_job)+1
+    chunk_positions = [[]]*number_chunks
+    initial_chunks = find_initial_chunks(number_jobs, chunk_dependencies, chunk_job)
+    
+    number_chunks_in_job = num_chunks_in_job(number_jobs,chunk_job)
+    chunks_in_job = identify_chunks_in_job(number_jobs, number_chunks, chunk_job)
+    
+    restricted_positions = []
+    valid_positions = True
+    
+    #calculate floor size
+    floor_x_max = floor_size[0]*2 - 1
+    floor_y_max = floor_size[1]*2 -1
+    
     #place initial chunks for each job
     for job in range(0,number_jobs):
         chunk_positions[initial_chunks[job]] = [job_starting_posiitons[job][0], job_starting_posiitons[job][1]]
     
     
-    #generate ramdom directions
-    print_direction = (np.round(np.random.rand(1,number_jobs)*4)).astype(int)
     
     #place chunks for each job
     for job in range(0,number_jobs):
@@ -143,18 +164,53 @@ while valid_positions == False:
     else:
         valid_positions = False
         
-    # print(valid_positions)
-    number_attempts += 1
+    # print(valid_positions
                 
-placement_visualizer.placement_vis(floor_size, chunk_positions, chunk_job)
-print(number_attempts)
+    
+    
+    return(chunk_positions, valid_positions)
 
-# return(chunk_positions)
+if __name__ == '__main__':
+    #GA parameters
+    num_pop = 10
+    percent_crossover = .3
+    percent_mutation = .2
+    num_iterations = 10
+    retention = .3
+    num_retention = int(np.round(num_pop*retention))
+    
+    #find valid configurations
+    placement_pop = [[]]*num_pop
+    direction_pop = [[]]*num_pop
+    print_time_pop = [[]]*num_pop
+    
+    for individual in range(0,2):
+        chunk_dep_iteration = chunk_dependencies.copy()
+        valid_positions = False
+        number_attempts = 0
+        while valid_positions == False:    
+            (job_starting_posiitons, job_directions) = random_placement(floor_size, chunk_dep_iteration, chunk_job)
+            (chunk_positions, valid_positions) = place_chunks(job_starting_posiitons, job_directions, chunk_job, chunk_dep_iteration, floor_size)
+            number_attempts += 1
+            job_directions = job_directions[0]
+        
+        #evaluate results
+        print_direction = scheduler.chunk_print_direction(job_directions, chunk_job)
+                          
+        total_print_time = scheduler.schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
+        print("Total Print Time: " + str(total_print_time))
+        
+        placement_pop[individual] = job_starting_posiitons
+        direction_pop[individual] = job_directions
+        print_time_pop[individual] = total_print_time
+
+#view placement    
+# print("Number of Attempts: " + str(number_attempts))
+# placement_visualizer.placement_vis(floor_size, chunk_positions, chunk_job)
+    
 
 
 
-
-#view placement
 
 #genetic algorithm
 

@@ -19,123 +19,129 @@ class tuning_variables:
     #the time in minutes it takes for a robot to move from one grid space to another
     robot_speed = .2
 
-class chunk_global_info:
-    #Info on the chunk configuration to be printed that will not change during printing
-    chunk_number = 24
-    # chunk_print_time = np.round(np.random.rand(1,chunk_number)*10)
-    chunk_print_time = [89., 82., 89., 84., 85., 80., 83., 87., 86., 81., 82., 87., 84., 64., 67., 78., \
-            84., 94., 87., 49., 86., 89., 86., 83.]
-    #all chunks on which a chunk is directly dependent
+# class chunk_global_info:
+#     #Info on the chunk configuration to be printed that will not change during printing
+#     chunk_number = 24
+#     # chunk_print_time = np.round(np.random.rand(1,chunk_number)*10)
+#     chunk_print_time = [89., 82., 89., 84., 85., 80., 83., 87., 86., 81., 82., 87., 84., 64., 67., 78., \
+#             84., 94., 87., 49., 86., 89., 86., 83.]
+#     #all chunks on which a chunk is directly dependent
     
                           
-    chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
+#     chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
     
-    initial_chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
-                          [0],[1,8],[2],[3,10],[4],[5,12],[6],[7,14],\
-                          [8],[9,16],[10],[11,18],[12],[13,20],[14],[15,22]]
+#     initial_chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
+#                           [0],[1,8],[2],[3,10],[4],[5,12],[6],[7,14],\
+#                           [8],[9,16],[10],[11,18],[12],[13,20],[14],[15,22]]
 
     
-class chunk_configuration:
-    #Info on the chunk configuration that will change between iterations (ie position) 
-    job_directions = [0,2,1,1]
-    print_direction = np.zeros(chunk_global_info().chunk_number)
-    for i in range(0,chunk_global_info().chunk_number):
-        print_direction[i] = job_directions[chunk_global_info().chunk_job[i][0]]     
+# class chunk_configuration:
+#     #Info on the chunk configuration that will change between iterations (ie position) 
+#     job_directions = [0,2,1,1]
+#     print_direction = np.zeros(chunk_global_info().chunk_number)
+#     for i in range(0,chunk_global_info().chunk_number):
+#         print_direction[i] = job_directions[chunk_global_info().chunk_job[i][0]]     
 
-    #chunk locations
-    chunk_positions = [[0,5],[1,5],[13,1],[14,1],[5,2],[5,1],[9,4],[9,5],\
-                      [0,4],[1,4],[13,2],[14,2],[6,2],[6,1],[10,4],[10,5],\
-                      [0,3],[1,3],[13,3],[14,3],[7,2],[7,1],[11,4],[11,5],]
+#     #chunk locations
+#     chunk_positions = [[0,5],[1,5],[13,1],[14,1],[5,2],[5,1],[9,4],[9,5],\
+#                       [0,4],[1,4],[13,2],[14,2],[6,2],[6,1],[10,4],[10,5],\
+#                       [0,3],[1,3],[13,3],[14,3],[7,2],[7,1],[11,4],[11,5],]
     
-    #this still modifies the original list for some reason
-    chunk_dependencies = chunk_global_info().initial_chunk_dependencies.copy()
+#     #this still modifies the original list for some reason
+#     chunk_dependencies = chunk_global_info().initial_chunk_dependencies.copy()
     
-    print_state = np.zeros(chunk_global_info().chunk_number)    
+#     print_state = np.zeros(chunk_global_info().chunk_number)    
         
 
-def queue(robot_starting_positions, chunk_info, floor_size):
-    total_print_time = 0
-    static_obstacles = []
+# def queue(robot_starting_positions, chunk_info, floor_size):
+#     total_print_time = 0
+#     static_obstacles = []
     
-    #loop while unprinted chunks
-    # while min(chunk_configuration().print_state) <= 0:
+#     #loop while unprinted chunks
+#     # while min(chunk_configuration().print_state) <= 0:
     
-    #Find all printable chunks
-    printable_chunks = independent_chunks(chunk_global_info())
+#     #Find all printable chunks
+#     printable_chunks = independent_chunks(chunk_global_info())
     
-    #Find the robot position for all printable chunks
-    printable_chunk_robot_positions = robot_chunk_positions(printable_chunks)
+#     #Find the robot position for all printable chunks
+#     printable_chunk_robot_positions = robot_chunk_positions(printable_chunks)
     
-    #find robot goal positions
-    #First decide which n chunks to print with n robots
-    (robot_goal_positions, printing_chunks) =  min_cost(robot_starting_positions, printable_chunk_robot_positions, printable_chunks)
+#     #find robot goal positions
+#     #First decide which n chunks to print with n robots
+#     (robot_goal_positions, printing_chunks) =  min_cost(robot_starting_positions, printable_chunk_robot_positions, printable_chunks)
     
-    #Find longest print time of current chunks
-    printing_chunks_time = np.zeros(len(printing_chunks))
-    for i in range(0,len(printing_chunks)):
-        printing_chunks_time[i] = chunk_global_info().chunk_print_time[[printing_chunks[i]]]
-    print_time = max(printing_chunks_time)
+#     #Find longest print time of current chunks
+#     printing_chunks_time = np.zeros(len(printing_chunks))
+#     for i in range(0,len(printing_chunks)):
+#         printing_chunks_time[i] = chunk_global_info().chunk_print_time[[printing_chunks[i]]]
+#     print_time = max(printing_chunks_time)
     
-    #make floor for this configuration
-    grid_size_multiplier = floor_maker.make_floor(floor_size[0], floor_size[1], robot_starting_positions, robot_goal_positions, static_obstacles)
+#     #make floor for this configuration
+#     grid_size_multiplier = floor_maker.make_floor(floor_size[0], floor_size[1], robot_starting_positions, robot_goal_positions, static_obstacles)
     
-    static_obstacles = vertices_to_obsts(static_obstacles)
+#     static_obstacles = vertices_to_obsts(static_obstacles)
     
-    # Call cbs-mapf to plan
-    load_scenario("AMBOTS_floor.yaml")
-    planner_object = planner.Planner(GRID_SIZE, ROBOT_RADIUS, static_obstacles)
-    # path = planner_object.plan(START, GOAL, debug=False)
+#     # Call cbs-mapf to plan
+#     load_scenario("AMBOTS_floor.yaml")
+#     planner_object = planner.Planner(GRID_SIZE, ROBOT_RADIUS, static_obstacles)
+#     # path = planner_object.plan(START, GOAL, debug=False)
     
-    #find end position
-    robot_ending_positions = []
-    """
-    Need to figure out data structure of path. Would like to record path for each move
-    for a visualization, but the important thing is to record the length of time the 
-    move stage takes
-    """
-    move_time = 15
+#     #find end position
+#     robot_ending_positions = []
+#     """
+#     Need to figure out data structure of path. Would like to record path for each move
+#     for a visualization, but the important thing is to record the length of time the 
+#     move stage takes
+#     """
+#     move_time = 15
     
-    #mark printed chunks as printed
-    for i in range(0,len(printing_chunks)):
-        chunk_configuration().print_state[printing_chunks[i]] = 1
-        static_obstacles.append(chunk_configuration().chunk_positions[printing_chunks[i]])
+#     #mark printed chunks as printed
+#     for i in range(0,len(printing_chunks)):
+#         chunk_configuration().print_state[printing_chunks[i]] = 1
+#         static_obstacles.append(chunk_configuration().chunk_positions[printing_chunks[i]])
                     
-    #remove dependencies of printed chunks
-    chunk_global_info().chunk_dependencies = remove_dependencies(chunk_global_info().chunk_dependencies, printing_chunks)
+#     #remove dependencies of printed chunks
+#     chunk_global_info().chunk_dependencies = remove_dependencies(chunk_global_info().chunk_dependencies, printing_chunks)
     
-    total_print_time = total_print_time + move_time + print_time
+#     total_print_time = total_print_time + move_time + print_time
     
-    #end loop
+#     #end loop
     
     
-    return(robot_ending_positions, total_print_time)
+#     return(robot_ending_positions, total_print_time)
+def chunk_print_direction(job_directions, chunk_job):
+    chunk_number = len(chunk_job)
+    print_direction = np.zeros(chunk_number)
+    for i in range(0,chunk_number):
+        print_direction[i] = job_directions[chunk_job[i][0]]
+    return(print_direction)
 
-def independent_chunks(chunk_global_info):
+def independent_chunks(chunk_number, chunk_dependencies, print_state):
     #find which chunks have no dependencies
     
     printable_chunks = []
-    for i  in range(0,chunk_global_info.chunk_number):
-        if chunk_configuration().chunk_dependencies[i] == [] and chunk_configuration().print_state[i] == 0:
+    for i  in range(0,chunk_number):
+        if chunk_dependencies[i] == [] and print_state[i] == 0:
             printable_chunks.append(i)
             
     
     return(printable_chunks)
 
-def robot_chunk_positions(printable_chunks):
+def robot_chunk_positions(printable_chunks, chunk_positions, print_direction):
     printable_chunk_robot_positions = []
     for i in range (0,len(printable_chunks)):
-        if chunk_configuration().print_direction[printable_chunks[i]] == 0:
-            x_pos = chunk_configuration().chunk_positions[printable_chunks[i]][0]
-            y_pos = chunk_configuration().chunk_positions[printable_chunks[i]][1]-1
-        if chunk_configuration().print_direction[printable_chunks[i]] == 1:
-            x_pos = chunk_configuration().chunk_positions[printable_chunks[i]][0]+1
-            y_pos = chunk_configuration().chunk_positions[printable_chunks[i]][1]
-        if chunk_configuration().print_direction[printable_chunks[i]] == 2:
-            x_pos = chunk_configuration().chunk_positions[printable_chunks[i]][0]
-            y_pos = chunk_configuration().chunk_positions[printable_chunks[i]][1]+1
-        if chunk_configuration().print_direction[printable_chunks[i]] == 3:
-            x_pos = chunk_configuration().chunk_positions[printable_chunks[i]][0]-1
-            y_pos = chunk_configuration().chunk_positions[printable_chunks[i]][1]
+        if print_direction[printable_chunks[i]] == 0:
+            x_pos = chunk_positions[printable_chunks[i]][0]
+            y_pos = chunk_positions[printable_chunks[i]][1]-1
+        if print_direction[printable_chunks[i]] == 1:
+            x_pos = chunk_positions[printable_chunks[i]][0]+1
+            y_pos = chunk_positions[printable_chunks[i]][1]
+        if print_direction[printable_chunks[i]] == 2:
+            x_pos = chunk_positions[printable_chunks[i]][0]
+            y_pos = chunk_positions[printable_chunks[i]][1]+1
+        if print_direction[printable_chunks[i]] == 3:
+            x_pos = chunk_positions[printable_chunks[i]][0]-1
+            y_pos = chunk_positions[printable_chunks[i]][1]
             
         printable_chunk_robot_positions.append([x_pos,y_pos])
         
@@ -235,28 +241,25 @@ def vertices_to_obsts(obsts):
 
 
 #For testing of this method
-def main():
-    robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
-    
-    
-    floor_size = [8,3]
-    
+def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job, chunk_print_time, chunk_positions, print_direction):
     robot_schedules = [[]]*len(robot_starting_positions)
+    chunk_number = len(chunk_job)    
+    print_state = np.zeros(chunk_number)
     
     total_print_time = 0
     obstacles = []   
     
     iterations = 0
     
-    while min(chunk_configuration().print_state) <= 0:
+    while min(print_state) <= 0:
     # for iterations in range(0,6):
         # print("Iteration: " +str(iterations))
         #Find all printable chunks
-        printable_chunks = independent_chunks(chunk_global_info)
+        printable_chunks = independent_chunks(chunk_number, chunk_dependencies, print_state)
         # print("Printable chunks" + str(printable_chunks))
         
         #Find the robot position for all printable chunks
-        printable_chunk_robot_positions = robot_chunk_positions(printable_chunks)
+        printable_chunk_robot_positions = robot_chunk_positions(printable_chunks, chunk_positions, print_direction)
         
         (robot_goal_positions, printing_chunks, robot_schedules) =  min_cost(robot_starting_positions, printable_chunk_robot_positions, printable_chunks, robot_schedules)
         # print(printing_chunks)
@@ -264,7 +267,7 @@ def main():
         #Find longest print time of current chunks
         printing_chunks_time = np.zeros(len(printing_chunks))
         for i in range(0,len(printing_chunks)):
-            printing_chunks_time[i] = chunk_global_info().chunk_print_time[printing_chunks[i]]
+            printing_chunks_time[i] = chunk_print_time[printing_chunks[i]]
         print_time = max(printing_chunks_time)
         
         #make floor for this configuration
@@ -290,12 +293,12 @@ def main():
         
         #mark printed chunks as printed
         for i in range(0,len(printing_chunks)):
-            chunk_configuration().print_state[printing_chunks[i]] = 1
-            obstacles.append(chunk_configuration().chunk_positions[printing_chunks[i]])
+            print_state[printing_chunks[i]] = 1
+            obstacles.append(chunk_positions[printing_chunks[i]])
         # print(chunk_configuration().print_state)
                      
         #remove dependencies of printed chunks
-        chunk_configuration().chunk_dependencies = remove_dependencies(chunk_configuration().chunk_dependencies, printing_chunks)
+        chunk_dependencies = remove_dependencies(chunk_dependencies, printing_chunks)
         # print(chunk_configuration.chunk_dependencies)
         
         #set new robot starting positions
@@ -317,9 +320,26 @@ def main():
     
     
 
-# if __name__ == '__main__':
-#     print_time = main()
-
+if __name__ == '__main__':
+    chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
+                          [0],[1,8],[2],[3,10],[4],[5,12],[6],[7,14],\
+                          [8],[9,16],[10],[11,18],[12],[13,20],[14],[15,22]]
+    chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
+    chunk_print_time = [89., 82., 89., 84., 85., 80., 83., 87., 86., 81., 82., 87., 84., 64., 67., 78., \
+            84., 94., 87., 49., 86., 89., 86., 83.]
+    robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
+    floor_size = [8,6]
+    chunk_positions = [[0,5],[1,5],[13,1],[14,1],[5,2],[5,1],[9,4],[9,5],\
+                          [0,4],[1,4],[13,2],[14,2],[6,2],[6,1],[10,4],[10,5],\
+                          [0,3],[1,3],[13,3],[14,3],[7,2],[7,1],[11,4],[11,5]]
+    chunk_number = len(chunk_job)
+    job_directions = [0,2,1,1]                      
+    print_direction = chunk_print_direction(job_directions, chunk_job)
+                      
+    total_print_time = schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job, chunk_print_time, chunk_positions, print_direction)
+    print("Total Print Time: " + str(total_print_time))
+    
+    
  ## for randomchunk generation
 """
 #the number of chunks
