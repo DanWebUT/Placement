@@ -74,7 +74,7 @@ def random_placement(floor_size, chunk_dependencies, chunk_job):
 
     return(job_starting_posiitons, print_direction)
   
-def place_chunks(job_starting_posiitons, print_direction, chunk_job, chunk_dependencies, floor_size):
+def place_chunks(job_starting_posiitons, print_direction, chunk_job, chunk_dependencies, floor_size, robot_starting_positions):
     number_chunks = len(chunk_job)
     number_jobs = np.max(chunk_job)+1
     chunk_positions = [[]]*number_chunks
@@ -157,7 +157,11 @@ def place_chunks(job_starting_posiitons, print_direction, chunk_job, chunk_depen
                 #check for validity
                 if chunk_position[0] < 0 or chunk_position[0] > floor_x_max or chunk_position[1] < 0 or chunk_position[1] > floor_y_max: 
                     valid_positions = False
-                
+    
+    #restrict from robot starting positions
+    for robot in range(0, len(robot_starting_positions)):
+        restricted_positions.append([robot_starting_positions[robot][0],robot_starting_positions[robot][1]])
+    
     #check to make sure there is no overlap including with positions needed to print each job
     coordinates_set = np.unique(np.array(restricted_positions), axis = 0)
     
@@ -192,7 +196,7 @@ if __name__ == '__main__':
         number_attempts = 0
         while valid_positions == False:    
             (job_starting_posiitons, job_directions) = random_placement(floor_size, chunk_dep_iteration, chunk_job)
-            (chunk_positions, valid_positions) = place_chunks(job_starting_posiitons, job_directions, chunk_job, chunk_dep_iteration, floor_size)
+            (chunk_positions, valid_positions) = place_chunks(job_starting_posiitons, job_directions, chunk_job, chunk_dep_iteration, floor_size, robot_starting_positions)
             number_attempts += 1
             job_directions = job_directions[0]
             if valid_positions == True:
