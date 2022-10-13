@@ -1,6 +1,8 @@
 import numpy as np
 import placement_visualizer
 import scheduler
+import copy
+
 
 """
 This is the main method that does the placement optimization. This algorithm uses
@@ -184,8 +186,8 @@ if __name__ == '__main__':
     direction_pop = [[]]*num_pop
     print_time_pop = [[]]*num_pop
     
-    for individual in range(0,1):
-        chunk_dep_iteration = chunk_dependencies.copy()
+    for individual in range(0,10):
+        chunk_dep_iteration = copy.deepcopy(chunk_dependencies)
         valid_positions = False
         number_attempts = 0
         while valid_positions == False:    

@@ -283,11 +283,7 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
         planner_object = planner.Planner(GRID_SIZE, ROBOT_RADIUS, static_obstacles)
         path = planner_object.plan(START, GOAL, debug=False)
         
-        if path == []:
-            path_error = True
-            print_state = [1]
-            total_print_time = 100000
-        else:
+        try: 
             path_error = False
             #rework the path to avoid diagonals and calculate path distance
             (robot_path_lengths,robot_paths,robot_visualize_paths) = path_scrubber.scrub_paths(path)
@@ -315,6 +311,10 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
             
             
             iterations = iterations + 1
+        except ValueError:
+            path_error = True
+            print_state = [1]
+            total_print_time = 1000
             #end loop
     # print("Schedule: " + str(robot_schedules))
     # print("Total Print Time: " + str(total_print_time))
@@ -335,14 +335,21 @@ if __name__ == '__main__':
             84., 94., 87., 49., 86., 89., 86., 83.]
     robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
     floor_size = [8,6]
-    chunk_positions = [[0,5],[1,5],[13,1],[14,1],[5,2],[5,1],[9,4],[9,5],\
-                          [0,4],[1,4],[13,2],[14,2],[6,2],[6,1],[10,4],[10,5],\
-                          [0,3],[1,3],[13,3],[14,3],[7,2],[7,1],[11,4],[11,5]]
+    # chunk_positions = [[0,5],[1,5],[13,1],[14,1],[5,2],[5,1],[9,4],[9,5],\
+    #                       [0,4],[1,4],[13,2],[14,2],[6,2],[6,1],[10,4],[10,5],\
+    #                       [0,3],[1,3],[13,3],[14,3],[7,2],[7,1],[11,4],[11,5]]
+    
+    chunk_positions = [[14, 2],[14, 3], [7, 0],[8, 0],[7, 8],[7, 9],[13, 7],[14, 7], \
+                       [13, 2],     [13, 3],     [7, 1],     [8, 1],     [6, 8],     [6, 9],     [13, 8],     [14, 8],\
+                        [12, 2],     [12, 3],     [7, 2],     [8, 2],     [5, 8],     [5, 9],     [13, 9],     [14, 9]]
+        
+    
     chunk_number = len(chunk_job)
-    job_directions = [0,2,1,1]                      
+    # job_directions = [0,2,1,1]   
+    job_directions = [3, 2, 3, 2]   
     print_direction = chunk_print_direction(job_directions, chunk_job)
                       
-    total_print_time = schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job, chunk_print_time, chunk_positions, print_direction)
+    (total_print_time, path_error) = schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job, chunk_print_time, chunk_positions, print_direction)
     print("Total Print Time: " + str(total_print_time))
     
     
