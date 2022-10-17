@@ -225,157 +225,204 @@ def gene_to_tuple(child):
 if __name__ == '__main__':
     #GA parameters
     num_pop = 10
-    percent_crossover = .3
-    percent_mutation = .2
-    num_iterations = 10
+    percent_mutation = .5
+    num_generations = 10
     percent_selection = .4
     
     
-    # #find valid configurations
-    # print_time_pop = [[]]*num_pop
-    # population_tuple = []
+    #find valid configurations
+    print_time_pop = [[]]*num_pop
+    population_tuple = []
     
-    # for individual in range(0,10):
-    #     chunk_dep_iteration = copy.deepcopy(chunk_dependencies)
-    #     valid_positions = False
-    #     number_attempts = 0
-    #     while valid_positions == False:    
-    #         (job_starting_posiitons, job_directions) = random_placement(floor_size, chunk_dep_iteration, chunk_job)
-    #         (chunk_positions, valid_positions) = place_chunks(job_starting_posiitons, job_directions, chunk_job, chunk_dep_iteration, floor_size, robot_starting_positions)
-    #         number_attempts += 1
-    #         job_directions = job_directions[0]
-    #         if valid_positions == True:
-    #             print_direction = scheduler.chunk_print_direction(job_directions, chunk_job)     
-    #             (total_print_time, path_error) = scheduler.schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
-    #             if path_error == True:
-    #                 valid_positions = False
-        
-    #     #evaluate results
-    #     print("Total Print Time: " + str(total_print_time))
-            
-    #     print_time_pop[individual] = total_print_time  
-    #     iteration_tuple = (job_starting_posiitons, job_directions, total_print_time)
-    #     population_tuple.append(iteration_tuple)
-        
-    # sorted(population_tuple, key = lambda individual: individual[2])
-    
-    print_time_pop = [534.3500000000001,
-     534.5500000000001,
-     534.75,
-     534.75,
-     534.1500000000001,
-     534.5500000000001,
-     534.1500000000001,
-     534.5500000000001,
-     534.5500000000001,
-     534.3500000000001]
-        
-    sorted_population_tuple = [(np.array([[0, 2],
-             [4, 2],
-             [8, 4],
-             [5, 3]]),
-      np.array([2, 1, 1, 2]),
-      533.5500000000001),
-     (np.array([[ 4,  9],
-             [ 6,  5],
-             [ 1,  3],
-             [10,  2]]),
-      np.array([3, 0, 2, 1]),
-      533.75),
-     (np.array([[13,  3],
-             [ 5,  7],
-             [ 4, 10],
-             [ 3,  4]]),
-      np.array([0, 1, 0, 0]),
-      533.95),
-     (np.array([[14,  3],
-             [ 4,  4],
-             [ 4,  5],
-             [10,  2]]),
-      np.array([3, 1, 3, 1]),
-      534.1500000000001),
-     (np.array([[ 9,  5],
-             [11,  2],
-             [ 6,  2],
-             [ 1,  9]]),
-      np.array([2, 1, 1, 1]),
-      534.1500000000001),
-     (np.array([[ 2,  2],
-             [13,  2],
-             [ 4,  9],
-             [ 9,  4]]),
-      np.array([2, 2, 1, 1]),
-      534.1500000000001),
-     (np.array([[9, 6],
-             [6, 2],
-             [2, 8],
-             [4, 7]]),
-      np.array([2, 1, 0, 2]),
-      534.1500000000001),
-     (np.array([[12,  3],
-             [ 2, 10],
-             [ 0,  4],
-             [ 9,  9]]),
-      np.array([1, 0, 1, 0]),
-      534.5500000000001),
-     (np.array([[ 4,  8],
-             [ 3,  7],
-             [10,  6],
-             [11,  1]]),
-      np.array([2, 3, 2, 2]),
-      534.5500000000001),
-     (np.array([[ 3, 10],
-             [ 6,  6],
-             [10,  8],
-             [ 9,  5]]),
-      np.array([0, 0, 1, 1]),
-      534.75)]
-    
-    print_time_pop.sort()
-    
-    #genetic algorithm
-    #find best results for selection and carry those over to new population
-    num_selection = int(np.round(num_pop*percent_selection))
-    new_popilation = sorted_population_tuple[:num_selection]
-    
-    
-    #create remaining from these
-    num_new_individuals =  num_pop-num_selection
-    probabilites = parent_probabilities(num_selection, print_time_pop)
-        
-    for individual in range(0,1):
+    for individual in range(0,10):
+        chunk_dep_iteration = copy.deepcopy(chunk_dependencies)
         valid_positions = False
-        while valid_positions == False:            
-            p1_index = select_parent(probabilites)
-            p2_index = select_parent(probabilites)
-            while p2_index == p1_index:
-                p2_index = select_parent(probabilites)
-            
-            p1_genes = list_genes(sorted_population_tuple[p1_index])
-            p2_genes = list_genes(sorted_population_tuple[p2_index])
-        
-            #crossover
-            child = crossover(p1_genes, p2_genes)
-            
-            #check validity 
-            chunk_dep_iteration = copy.deepcopy(chunk_dependencies)
-            (child_job_starting_positions, child_job_directions) = gene_to_tuple(child)
-            (chunk_positions, valid_positions) = place_chunks(child_job_starting_positions, [child_job_directions], chunk_job, chunk_dep_iteration, floor_size, robot_starting_positions)
+        number_attempts = 0
+        while valid_positions == False:    
+            (job_starting_posiitons, job_directions) = random_placement(floor_size, chunk_dep_iteration, chunk_job)
+            (chunk_positions, valid_positions) = place_chunks(job_starting_posiitons, job_directions, chunk_job, chunk_dep_iteration, floor_size, robot_starting_positions)
+            number_attempts += 1
+            job_directions = job_directions[0]
             if valid_positions == True:
-                print_direction = scheduler.chunk_print_direction(child_job_directions, chunk_job)     
+                print_direction = scheduler.chunk_print_direction(job_directions, chunk_job)     
                 (total_print_time, path_error) = scheduler.schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
                 if path_error == True:
                     valid_positions = False
         
-        print("Parents: " + str(p1_index) + " and " + str(p2_index))
-        print(total_print_time)
-        #add to new population once validity is confirmed
-        iteration_tuple = (child_job_starting_positions, child_job_directions, total_print_time)
-        new_popilation.append(iteration_tuple)
-        print_time_pop[num_selection+individual] = total_print_time
+        #evaluate results
+        print("Total Print Time: " + str(total_print_time))
             
-    print(print_time_pop)
+        print_time_pop[individual] = total_print_time  
+        iteration_tuple = (job_starting_posiitons, job_directions, total_print_time)
+        population_tuple.append(iteration_tuple)
+        
+    sorted_population_tuple = sorted(population_tuple, key = lambda individual: individual[2])
     
+    print_time_pop.sort()
+    
+    # print_time_pop = [549.75,
+    #  550.75,
+    #  550.75,
+    #  550.75,
+    #  550.75,
+    #  551.75,
+    #  552.75,
+    #  552.75,
+    #  552.75,
+    #  552.75]
+        
+    # sorted_population_tuple = [(np.array([[0, 2],
+    #          [4, 2],
+    #          [8, 4],
+    #          [5, 3]]),
+    #   np.array([2, 1, 1, 2]),
+    #   533.5500000000001),
+    #  (np.array([[ 4,  9],
+    #          [ 6,  5],
+    #          [ 1,  3],
+    #          [10,  2]]),
+    #   np.array([3, 0, 2, 1]),
+    #   533.75),
+    #  (np.array([[13,  3],
+    #          [ 5,  7],
+    #          [ 4, 10],
+    #          [ 3,  4]]),
+    #   np.array([0, 1, 0, 0]),
+    #   533.95),
+    #  (np.array([[14,  3],
+    #          [ 4,  4],
+    #          [ 4,  5],
+    #          [10,  2]]),
+    #   np.array([3, 1, 3, 1]),
+    #   534.1500000000001),
+    #  (np.array([[ 9,  5],
+    #          [11,  2],
+    #          [ 6,  2],
+    #          [ 1,  9]]),
+    #   np.array([2, 1, 1, 1]),
+    #   534.1500000000001),
+    #  (np.array([[ 2,  2],
+    #          [13,  2],
+    #          [ 4,  9],
+    #          [ 9,  4]]),
+    #   np.array([2, 2, 1, 1]),
+    #   534.1500000000001),
+    #  (np.array([[9, 6],
+    #          [6, 2],
+    #          [2, 8],
+    #          [4, 7]]),
+    #   np.array([2, 1, 0, 2]),
+    #   534.1500000000001),
+    #  (np.array([[12,  3],
+    #          [ 2, 10],
+    #          [ 0,  4],
+    #          [ 9,  9]]),
+    #   np.array([1, 0, 1, 0]),
+    #   534.5500000000001),
+    #  (np.array([[ 4,  8],
+    #          [ 3,  7],
+    #          [10,  6],
+    #          [11,  1]]),
+    #   np.array([2, 3, 2, 2]),
+    #   534.5500000000001),
+    #  (np.array([[ 3, 10],
+    #          [ 6,  6],
+    #          [10,  8],
+    #          [ 9,  5]]),
+    #   np.array([0, 0, 1, 1]),
+    #   534.75)]
+    
+
+    print("Original population print time: \n" + str(print_time_pop))
+    
+    #genetic algorithm
+    #find best results for selection and carry those over to new population
+    num_selection = int(np.round(num_pop*percent_selection))
+    num_new_individuals =  num_pop-num_selection
+    new_print_time_pop = [[]]*num_new_individuals
+    
+    for generation in range(1,num_generations+1):
+        new_population = sorted_population_tuple[:num_selection]
+    
+        #create remaining from these
+        probabilites = parent_probabilities(num_selection, print_time_pop)
+        for individual in range(0,num_new_individuals):
+            valid_positions = False
+            
+            #make sure child is valid configuration and that it forms in less than 100 iterations
+            iteration_count = 0
+            while valid_positions == False and iteration_count < 100:            
+                p1_index = select_parent(probabilites)
+                p2_index = select_parent(probabilites)
+                #index can be the same but this is intentional to allow for mutation of
+                #the original parents without crossover in the new population
+                
+                p1_genes = list_genes(sorted_population_tuple[p1_index])
+                p2_genes = list_genes(sorted_population_tuple[p2_index])
+            
+                #crossover
+                child = crossover(p1_genes, p2_genes)
+                
+                #mutation
+                mutation = False
+                if np.random.rand() < percent_mutation:
+                    mutation = True
+                    #generate random location
+                    mutation_location = int(np.floor(np.random.rand()*len(child)))
+                    
+                    #generate +1 or -1 change at location
+                    if np.random.rand() < .5:
+                        change = -1
+                    else:
+                        change = +1
+                    
+                    child[mutation_location] = child[mutation_location] + change
+                    
+                    #make sure direction is in range 0 to 3
+                    if (mutation_location+1)%3 == 0 and (child[mutation_location] < 0 or child[mutation_location] > 3):
+                        child[mutation_location] = child[mutation_location]%4
+                    
+                #check validity 
+                chunk_dep_iteration = copy.deepcopy(chunk_dependencies)
+                (child_job_starting_positions, child_job_directions) = gene_to_tuple(child)
+                (chunk_positions, valid_positions) = place_chunks(child_job_starting_positions, [child_job_directions], chunk_job, chunk_dep_iteration, floor_size, robot_starting_positions)
+                if valid_positions == True:
+                    print_direction = scheduler.chunk_print_direction(child_job_directions, chunk_job)     
+                    (total_print_time, path_error) = scheduler.schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
+                    if path_error == True:
+                        valid_positions = False
+                
+                iteration_count += 1
+            
+            #if child does not form in 100 iterations, pick parent one to move to next generation
+            if iteration_count >= 100:
+                iteration_tuple = sorted_population_tuple[p1_index]
+                
+                #FOR TESTING
+                # print("Iteration count exceeded, carry " + str(p1_index) + " to next generation")
+                # print("Mutation is " + str(mutation))
+                # print(total_print_time)
+            else:
+                iteration_tuple = (child_job_starting_positions, np.array(child_job_directions), total_print_time)
+                
+                #FOR TESTING
+                # print("Parents: " + str(p1_index) + " and " + str(p2_index))
+                # print("Mutation is " + str(mutation))
+                # print(total_print_time)
+    
+            #add to new population once validity is confirmed
+            new_population.append(iteration_tuple)
+            new_print_time_pop[individual] = total_print_time
+            print_time_pop[num_selection+individual] = total_print_time
+        
+        
+        print_time_pop.sort()
+        sorted(new_population, key = lambda individual: individual[2])
+        
+        population_tuple = copy.deepcopy(new_population)
+    
+        #FOR TESTING
+        print("Generation " +str(generation) +" population print time: \n" + str(print_time_pop))
     
 #view placement    
 # print("Number of Attempts: " + str(number_attempts))

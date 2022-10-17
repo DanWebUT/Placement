@@ -40,8 +40,8 @@ def make_floor(num_FT_x, num_FT_y, rob_start_pos, rob_goal_pos, filled_pos):
         file.write("GOAL:\n")
         for i in range(0,num_robots):
             (x, y, mid) = conv_coord(rob_goal_pos[i][0], rob_goal_pos[i][1])
-            file.write("- !!python/tuple [" + str(x+mid) + ", " + \
-                       str(y+mid) + "]\n")
+            file.write("- !!python/tuple [" + str(int(x+mid)) + ", " + \
+                       str(int(y+mid)) + "]\n")
                 
         file.write("GRID_SIZE: " + str(sizes.grid_size) + "\n")
         file.write("RECT_OBSTACLES:\n")
@@ -76,10 +76,10 @@ def make_floor(num_FT_x, num_FT_y, rob_start_pos, rob_goal_pos, filled_pos):
         for i in range(0,num_chunks):
             file.write("  " + str(i+num_spaces)+ ":\n")
             (x, y, mid) = conv_coord(filled_pos[i][0], filled_pos[i][1])
-            x_start = x
-            y_start = y
-            x_end = x + mid*2
-            y_end = y + mid*2
+            x_start = int(x + sizes.robot_offset)
+            y_start = int(y + sizes.robot_offset)
+            x_end = int(x + mid*2 + sizes.robot_offset)
+            y_end = int(y + mid*2 + sizes.robot_offset)
             file.write("  - [" + str(x_start) + ", " + str(y_start) + "]\n")
             file.write("  - [" + str(x_end) + ", " + str(y_end) + "]\n")
             
@@ -90,8 +90,8 @@ def make_floor(num_FT_x, num_FT_y, rob_start_pos, rob_goal_pos, filled_pos):
         file.write("START:\n")
         for i in range(0,num_robots):
             (x, y, mid) = conv_coord(rob_start_pos[i][0], rob_start_pos[i][1])
-            file.write("- !!python/tuple [" + str(x+mid) + ", " + \
-                       str(y+mid) + "]\n")
+            file.write("- !!python/tuple [" + str(int(x+mid)) + ", " + \
+                       str(int(y+mid)) + "]\n")
         
         return(sizes.size_multiplier)
 
