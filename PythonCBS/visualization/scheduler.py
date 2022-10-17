@@ -161,6 +161,7 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
     obstacles = []   
     
     iterations = 0
+    global_time = 0
     
     while min(print_state) <= 0:
     # for iterations in range(0,6):
@@ -175,7 +176,8 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
         (robot_goal_positions, printing_chunks, robot_schedules) =  min_cost(robot_starting_positions, printable_chunk_robot_positions, printable_chunks, robot_schedules)
         # print(printing_chunks)
         
-        #Find longest print time of current chunks
+        #WIP
+        #Find shortest print time and which robot is printing that chunk
         printing_chunks_time = np.zeros(len(printing_chunks))
         for i in range(0,len(printing_chunks)):
             printing_chunks_time[i] = chunk_print_time[printing_chunks[i]]
@@ -199,12 +201,21 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
             #rework the path to avoid diagonals and calculate path distance
             (robot_path_lengths,robot_paths,robot_visualize_paths) = path_scrubber.scrub_paths(path)
             
-            #calculate movement time
+            #WIP
+            #calculate movement time for each robot
             robot_move_time = (robot_path_lengths/(grid_size_multiplier/GRID_SIZE))*tuning_variables.robot_speed
             longest_move_time = max(robot_move_time)
-            # longest_move_time = 8
             
-            #mark printed chunks as printed
+            #WIP
+            #Check if another robot can start moving during current move phase
+            
+            #If yes, stop the move at the position where the next move would start and continue
+        
+            #add movement time to print time
+            total_print_time = total_print_time + longest_move_time + print_time
+            
+            #WIP
+            #mark only printed chunks as printed
             for i in range(0,len(printing_chunks)):
                 print_state[printing_chunks[i]] = 1
                 obstacles.append(chunk_positions[printing_chunks[i]])
@@ -217,9 +228,6 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
             #set new robot starting positions
             robot_starting_positions = robot_goal_positions
             # print(robot_starting_positions)
-            
-            total_print_time = total_print_time + longest_move_time + print_time
-            
             
             iterations = iterations + 1
         except ValueError:
