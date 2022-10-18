@@ -18,7 +18,7 @@ class Simulator:
 
     def __init__(self):
         # Set up a white 1080p canvas
-        self.canvas = np.ones((1200,3200,3), np.uint8)*255 
+        self.canvas = np.ones((2400,3200,3), np.uint8)*255 
         # Draw the rectangluar obstacles on canvas
         self.draw_rect(np.array([np.array(v) for v in RECT_OBSTACLES.values()]))
 
@@ -34,7 +34,7 @@ class Simulator:
         
         (robot_path_lengths,robot_paths,robot_visualize_paths) = path_scrubber.scrub_paths(prepath)
         
-        self.path = robot_visualize_paths
+        self.path = prepath #robot_visualize_paths
         print(self.path)
         
 
@@ -100,7 +100,7 @@ class Simulator:
     '''
     def start(self):
         cv2.namedWindow('frame', cv2.WINDOW_NORMAL)
-        cv2.resizeWindow('frame', (1280, 720))
+        cv2.resizeWindow('frame', (1280,720))
         wait = True
         try:
             i = 0
@@ -137,7 +137,7 @@ Use this function to show your START/GOAL configurations
 def show_pos(pos):
     cv2.namedWindow('frame', cv2.WINDOW_NORMAL)
     cv2.resizeWindow('frame', (1280, 720))
-    frame = np.ones((1080,1920,3), np.uint8)*255
+    frame = np.ones((2400,3200,3), np.uint8)*255
     for x, y in pos:
         cv2.circle(frame, (x, y), ROBOT_RADIUS-5, (0, 0, 0), 5)
     cv2.imshow('frame', frame)
