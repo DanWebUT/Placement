@@ -1,10 +1,12 @@
 import os
-
+import time
+import numpy as np
 """
 This file is to write the actions the robots take in order
 """
+time_setting = int(np.round((time.time())/1000))
 
-folder = "iteration_" + str(1)
+folder = "GA" + str(time_setting)
 
 current_path = os.getcwd()
 filepath = os.path.join(current_path,folder)

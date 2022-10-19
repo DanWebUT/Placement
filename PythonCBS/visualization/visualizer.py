@@ -35,7 +35,7 @@ class Simulator:
         (robot_path_lengths,robot_paths,robot_visualize_paths) = path_scrubber.scrub_paths(prepath)
         
         self.path = prepath #robot_visualize_paths #
-        print(self.path)
+        # print(self.path)
         
 
         # Assign each agent a colour

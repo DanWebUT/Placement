@@ -2,6 +2,8 @@ import numpy as np
 import placement_visualizer
 import scheduler
 import copy
+import os
+import time
 
 
 """
@@ -176,10 +178,10 @@ def place_chunks(job_starting_posiitons, print_direction, chunk_job, chunk_depen
     
     return(chunk_positions, valid_positions)
 
-def parent_probabilities(num_selection, print_time_pop):
+def parent_probabilities(num_parents, print_time_pop):
     #Adapted from https://pub.towardsai.net/genetic-algorithm-ga-introduction-with-example-code-e59f9bc58eaf
     #set probabilites of each parent being selected
-    parent_cost_list = print_time_pop[:num_selection]
+    parent_cost_list = print_time_pop[:num_parents]
     avg_cost = np.mean(parent_cost_list)
     beta = 1
     parent_cost_list = np.array(parent_cost_list)/avg_cost
@@ -221,132 +223,89 @@ def gene_to_tuple(child):
         job_starting_posiitons[job][1] = child[job*3+1]
         job_direction[job] = child[job*3+2]
     return(job_starting_posiitons, job_direction)
-    
+
+def create_random_configuration(floor_size, chunk_dependencies, chunk_job, robot_starting_positions, chunk_print_time):
+    chunk_dep_iteration = copy.deepcopy(chunk_dependencies)
+    valid_positions = False
+    number_attempts = 0
+    while valid_positions == False:    
+        (job_starting_posiitons, job_directions) = random_placement(floor_size, chunk_dep_iteration, chunk_job)
+        (chunk_positions, valid_positions) = place_chunks(job_starting_posiitons, job_directions, chunk_job, chunk_dep_iteration, floor_size, robot_starting_positions)
+        number_attempts += 1
+        job_directions = job_directions[0]
+        if valid_positions == True:
+            print_direction = scheduler.chunk_print_direction(job_directions, chunk_job)     
+            (total_print_time, path_error) = scheduler.schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
+            if path_error == True:
+                valid_positions = False
+    return(total_print_time, job_starting_posiitons, job_directions)
+                    
 if __name__ == '__main__':
     #GA parameters
     num_pop = 10
     percent_mutation = .5
-    num_generations = 10
-    percent_selection = .4
+    num_generations = 100
+    percent_carryover = .2
+    percent_crossover = .6
     
+    """
+    The GA is set up in a way where the best percent carryover of the population is carried
+    to the next generation. Then the next percent crossover of the new population is created 
+    by crossover. These also have a chance of mutation and can be made up of non-unique parents
+    Finally, the remaining members are randomly generated
+    """
+    #Write to a folder
+    time_setting = int(np.round((time.time())/1000))
+    folder = "GA_Results/GA" + str(time_setting)
+
+    current_path = os.getcwd()
+    filepath = os.path.join(current_path,folder)
+    os.makedirs(filepath, exist_ok=True)
+
+    filename = "Print_Times"
+    config_filename = "Configurations"
+    complete_filename = os.path.join(filepath, filename +".txt")
+    config_complete_filename = os.path.join(filepath, config_filename +".txt")
     
     #find valid configurations
     print_time_pop = [[]]*num_pop
     population_tuple = []
     
-    for individual in range(0,10):
-        chunk_dep_iteration = copy.deepcopy(chunk_dependencies)
-        valid_positions = False
-        number_attempts = 0
-        while valid_positions == False:    
-            (job_starting_posiitons, job_directions) = random_placement(floor_size, chunk_dep_iteration, chunk_job)
-            (chunk_positions, valid_positions) = place_chunks(job_starting_posiitons, job_directions, chunk_job, chunk_dep_iteration, floor_size, robot_starting_positions)
-            number_attempts += 1
-            job_directions = job_directions[0]
-            if valid_positions == True:
-                print_direction = scheduler.chunk_print_direction(job_directions, chunk_job)     
-                (total_print_time, path_error) = scheduler.schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
-                if path_error == True:
-                    valid_positions = False
+    for individual in range(0,num_pop):
+        (total_print_time, job_starting_posiitons, job_directions) = create_random_configuration(floor_size, chunk_dependencies, chunk_job, robot_starting_positions, chunk_print_time)
         
-        #evaluate results
-        print("Total Print Time: " + str(total_print_time))
-            
+        print(total_print_time)
+        
+        #evaluate results    
         print_time_pop[individual] = total_print_time  
         iteration_tuple = (job_starting_posiitons, job_directions, total_print_time)
         population_tuple.append(iteration_tuple)
         
     sorted_population_tuple = sorted(population_tuple, key = lambda individual: individual[2])
     
-    print_time_pop.sort()
-    
-    # print_time_pop = [549.75,
-    #  550.75,
-    #  550.75,
-    #  550.75,
-    #  550.75,
-    #  551.75,
-    #  552.75,
-    #  552.75,
-    #  552.75,
-    #  552.75]
-        
-    # sorted_population_tuple = [(np.array([[0, 2],
-    #          [4, 2],
-    #          [8, 4],
-    #          [5, 3]]),
-    #   np.array([2, 1, 1, 2]),
-    #   533.5500000000001),
-    #  (np.array([[ 4,  9],
-    #          [ 6,  5],
-    #          [ 1,  3],
-    #          [10,  2]]),
-    #   np.array([3, 0, 2, 1]),
-    #   533.75),
-    #  (np.array([[13,  3],
-    #          [ 5,  7],
-    #          [ 4, 10],
-    #          [ 3,  4]]),
-    #   np.array([0, 1, 0, 0]),
-    #   533.95),
-    #  (np.array([[14,  3],
-    #          [ 4,  4],
-    #          [ 4,  5],
-    #          [10,  2]]),
-    #   np.array([3, 1, 3, 1]),
-    #   534.1500000000001),
-    #  (np.array([[ 9,  5],
-    #          [11,  2],
-    #          [ 6,  2],
-    #          [ 1,  9]]),
-    #   np.array([2, 1, 1, 1]),
-    #   534.1500000000001),
-    #  (np.array([[ 2,  2],
-    #          [13,  2],
-    #          [ 4,  9],
-    #          [ 9,  4]]),
-    #   np.array([2, 2, 1, 1]),
-    #   534.1500000000001),
-    #  (np.array([[9, 6],
-    #          [6, 2],
-    #          [2, 8],
-    #          [4, 7]]),
-    #   np.array([2, 1, 0, 2]),
-    #   534.1500000000001),
-    #  (np.array([[12,  3],
-    #          [ 2, 10],
-    #          [ 0,  4],
-    #          [ 9,  9]]),
-    #   np.array([1, 0, 1, 0]),
-    #   534.5500000000001),
-    #  (np.array([[ 4,  8],
-    #          [ 3,  7],
-    #          [10,  6],
-    #          [11,  1]]),
-    #   np.array([2, 3, 2, 2]),
-    #   534.5500000000001),
-    #  (np.array([[ 3, 10],
-    #          [ 6,  6],
-    #          [10,  8],
-    #          [ 9,  5]]),
-    #   np.array([0, 0, 1, 1]),
-    #   534.75)]
-    
+    print_time_pop.sort() 
 
     print("Original population print time: \n" + str(print_time_pop))
+    #create empty file
+    with open(complete_filename, "w") as file:
+        file.write("Original population print time: \n" + str(print_time_pop) + "\n")
+    
+    with open(config_complete_filename, "w") as file:
+        file.write("Original population configuration: \n" + str(sorted_population_tuple) + "\n")
     
     #genetic algorithm
     #find best results for selection and carry those over to new population
-    num_selection = int(np.round(num_pop*percent_selection))
-    num_new_individuals =  num_pop-num_selection
-    new_print_time_pop = [[]]*num_new_individuals
+    num_carryover = int(np.round(num_pop*percent_carryover))
+    num_crossover = int(np.round(num_pop*percent_crossover))
+    num_parents = num_carryover+num_crossover
+    num_new_random = num_pop-num_carryover-num_crossover
     
     for generation in range(1,num_generations+1):
-        new_population = sorted_population_tuple[:num_selection]
+        new_population = sorted_population_tuple[:num_carryover]
     
         #create remaining from these
-        probabilites = parent_probabilities(num_selection, print_time_pop)
-        for individual in range(0,num_new_individuals):
+        probabilites = parent_probabilities(num_parents, print_time_pop)
+        for individual in range(0,int(num_crossover)):
             valid_positions = False
             
             #make sure child is valid configuration and that it forms in less than 100 iterations
@@ -412,17 +371,32 @@ if __name__ == '__main__':
     
             #add to new population once validity is confirmed
             new_population.append(iteration_tuple)
-            new_print_time_pop[individual] = total_print_time
-            print_time_pop[num_selection+individual] = total_print_time
+            print_time_pop[num_carryover+individual] = total_print_time
         
+        for individual in range(0,int(num_new_random)):
+            (total_print_time, job_starting_posiitons, job_directions) = create_random_configuration(floor_size, chunk_dependencies, chunk_job, robot_starting_positions, chunk_print_time)
+            
+            # print(total_print_time)
+            
+            #evaluate results    
+            iteration_tuple = (job_starting_posiitons, job_directions, total_print_time)
+            new_population.append(iteration_tuple)
+            print_time_pop[num_carryover+num_crossover+individual] = total_print_time
         
         print_time_pop.sort()
-        sorted(new_population, key = lambda individual: individual[2])
+        new_population = sorted(new_population, key = lambda individual: individual[2])
         
         population_tuple = copy.deepcopy(new_population)
     
         #FOR TESTING
         print("Generation " +str(generation) +" population print time: \n" + str(print_time_pop))
+        
+        #Write print and configuration results
+        with open(complete_filename, "a+") as file:
+           file.write("Generation " +str(generation) +" population print time: \n" + str(print_time_pop) + "\n")
+           
+        with open(config_complete_filename, "a+") as file:
+            file.write("Generation " +str(generation) +" population configuration: \n" + str(new_population) + "\n")
     
 #view placement    
 # print("Number of Attempts: " + str(number_attempts))
