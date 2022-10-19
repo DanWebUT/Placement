@@ -34,7 +34,7 @@ class Simulator:
         
         (robot_path_lengths,robot_paths,robot_visualize_paths) = path_scrubber.scrub_paths(prepath)
         
-        self.path = prepath #robot_visualize_paths
+        self.path = prepath #robot_visualize_paths #
         print(self.path)
         
 
@@ -150,5 +150,10 @@ if __name__ == '__main__':
     # python3 visualizer.py scenario1.yaml
     load_scenario("AMBOTS_floor.yaml")
     # show_pos(START)
+    r = Simulator()
+    r.start()
+
+def visualizer():
+    load_scenario("AMBOTS_floor.yaml")
     r = Simulator()
     r.start()

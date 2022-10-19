@@ -4,15 +4,16 @@
 This program will track the steps of the printing process (printing and move
 phase) and call the floor maker and cbs algorithm at each step of the process
 """
-from typing import List, Tuple
 import numpy as np
 import floor_maker
 import placement_visualizer
+import visualizer
 from cbs_mapf import planner
 import yaml
 import math
 import time
 import path_scrubber
+import copy
 
 
 class tuning_variables:
@@ -59,10 +60,16 @@ def robot_chunk_positions(printable_chunks, chunk_positions, print_direction):
     return(printable_chunk_robot_positions)
     
 
-def min_cost(robot_positions, printable_chunk_robot_positions, printable_chunks, robot_schedules):
+def min_cost(robot_positions, printable_chunk_robot_positions, printable_chunks, robot_schedules, global_robot_states):
     # Greedy algorithm to assign chunks to all the agents
     # Just needs to output the robot positions
     sqdist = lambda x, y: (x[0]-y[0])**2 + (x[1]-y[1])**2
+    
+    moving_robots = []
+    #figure out which robots are moving
+    for i in range(0, len(global_robot_states)):
+        if global_robot_states[i] == 0:
+            moving_robots.append(i)
     
     #This is the state of the robot, 0 is awaiting assignment, 1 is assigned
     robot_state = np.zeros(len(robot_positions))
@@ -87,7 +94,7 @@ def min_cost(robot_positions, printable_chunk_robot_positions, printable_chunks,
         robot_state[index[0]] = 1
         printing_chunks.append(printable_chunks[index[1]])
         # print("Chunk to robot: " + str(chunk_to_robot))
-        robot_schedules[index[0]] = robot_schedules[index[0]] + [printable_chunks[index[1]]]
+        robot_schedules[moving_robots[index[0]]] = robot_schedules[moving_robots[index[0]]] + [printable_chunks[index[1]]]
         
         #Set assigned chunk to arbitrarily high distance to prevent duplicate assignment
         for i in range(0, len(printable_chunk_robot_positions)):
@@ -108,7 +115,7 @@ def min_cost(robot_positions, printable_chunk_robot_positions, printable_chunks,
     printing_chunks = sorted(printing_chunks)
     
     #printing_chunks should be a list of indexes of which chunks to print
-    return(robot_goal_positions, printing_chunks, robot_schedules)
+    return(robot_goal_positions, printing_chunks, robot_schedules, moving_robots)
 
 ## Work in progress
 def remove_dependencies(chunk_dependencies, printing_chunks):
@@ -155,44 +162,49 @@ def vertices_to_obsts(obsts):
 def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job, chunk_print_time, chunk_positions, print_direction):
     robot_schedules = [[]]*len(robot_starting_positions)
     chunk_number = len(chunk_job)    
-    print_state = np.zeros(chunk_number)
-    robot_state = np.zeros(len(robot_starting_positions))
-    robot_next_state = np.zeros(len(robot_starting_positions))
+    chunk_print_states = np.zeros(chunk_number)
+    robot_states = np.zeros(len(robot_starting_positions),int)
     time_current_action = np.zeros(len(robot_starting_positions))
-    time_next_action = np.zeros(len(robot_starting_positions))
-    
+    robot_positions = copy.deepcopy(robot_starting_positions)
     
     total_print_time = 0
-    obstacles = []   
+    chunk_obstacles = []
+    robot_obstacles = []
+    obstacles = chunk_obstacles+robot_obstacles
     
     iterations = 0
-    global_time = 0
+    elapsed_time = 0
     
     
     
-    while min(print_state) <= 0:
+    while min(chunk_print_states) <= 1:
     # for iterations in range(0,6):
         # print("Iteration: " +str(iterations))
         
         #Find all printable chunks
-        printable_chunks = independent_chunks(chunk_number, chunk_dependencies, print_state)
+        printable_chunks = independent_chunks(chunk_number, chunk_dependencies, chunk_print_states)
         print("Printable chunks" + str(printable_chunks))
         
         #check if there is an available robot
-        if min(robot_state) == 0:
+        if min(robot_states) == 0:
             #check if there is a printable chunk
             if printable_chunks != []:
                 #Find the robot position for all printable chunks
                 printable_chunk_robot_positions = robot_chunk_positions(printable_chunks, chunk_positions, print_direction)
                 
                 #Update this method to take in all robot states and assigne the ones that are waiting
-                (robot_goal_positions, printing_chunks, robot_schedules, moving_robots) =  min_cost(robot_starting_positions, printable_chunk_robot_positions, printable_chunks, robot_schedules)
+                (robot_goal_positions, printing_chunks, robot_schedules, moving_robots) =  min_cost(robot_starting_positions, printable_chunk_robot_positions, printable_chunks, robot_schedules, robot_states)
                 print("Printing Chunks: " + str(printing_chunks))
         
-                #set all available robots to move
-                for robot in moving_robots:
-                    robot_state[robot] = 1
+                #update robots to move state
+                for count, robot in enumerate(moving_robots):
+                    robot_states[robot] = 1
+                    robot_positions[robot] = robot_goal_positions[count]
                         
+                #mark all printing chunks as in progress
+                for chunk in printing_chunks:
+                    chunk_print_states[robot] = 1
+                
                 #calculate robot path and path time
                 #make floor for this configuration
                 grid_size_multiplier = floor_maker.make_floor(floor_size[0], floor_size[1], robot_starting_positions, robot_goal_positions, obstacles)
@@ -212,59 +224,134 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
                     #rework the path to avoid diagonals and calculate path distance
                     (robot_path_lengths,robot_paths,robot_visualize_paths) = path_scrubber.scrub_paths(path)
                     
+                    visualizer.visualizer()
+                    
                     #WIP
                     #calculate movement time for each robot
-                    robot_move_time = ((robot_path_lengths-1)/(2))*tuning_variables.robot_speed
+                    robot_move_time = ((robot_path_lengths)/(2))*tuning_variables.robot_speed
                     print("Robot Move Time " + str(robot_move_time))
                     
-                    for robot in moving_robots:
-                        time_current_action[moving_robots[robot]] += robot_move_time[robot]
-                        
+                    #add movement time to current action queue
+                    for count, robot in enumerate(moving_robots):
+                        time_current_action[robot] += (robot_move_time[count])
+                    print("Time Current Action: " +str(time_current_action))
                     
-                    #WIP
-                    #Find shortest print time and which robot is printing that chunk
+                    
+                    #Find print time for all robots and add to time queue
                     printing_chunks_time = np.zeros(len(printing_chunks))
                     for i in range(0,len(printing_chunks)):
                         printing_chunks_time[i] = chunk_print_time[printing_chunks[i]]
-                    print_time = max(printing_chunks_time)
-                    print("Chunk Print Times "+ str(printing_chunks_time))
+                    print("Chunk Print Times "+ str(printing_chunks_time))    
                     
-                    #make sure no robot needs to move while current move action is occuring
-                    # if (max(time_until_next_action)-min(time_until_next_action)) < 
+                    #add print time to current action queue
+                    for count, robot in enumerate(moving_robots):
+                        time_current_action[robot] += (printing_chunks_time[count])
+                        
+                    #calculate global elapsed time based on shortest next action time
+                    elapsed_time += (min(time_current_action))
+                    print("Elapsed Time: " + str(elapsed_time))
+                    time_current_action -= (min(time_current_action))
+                    print("Time Current Action: " +str(time_current_action))
+                    
+                    #set robot states of finished robots back to waiting
+                    num_chunks_printed_iteration = 0
+                    robots_finished = []
+                    for i in range(0,len(robot_states)):
+                        if time_current_action[i] == 0:
+                            robot_states[i] = 0
+                            num_chunks_printed_iteration += 1
+                            robots_finished.append(i)
+                    
+                    #mark the chunk that finished printing as printed
+                    printed_chunks = []
+                    for i in range(0,num_chunks_printed_iteration):
+                        printed_chunks.append(robot_schedules[robots_finished[i]][-1])
                     
                     #WIP
                     #mark only printed chunks as printed
+                    for i in range(0,len(printed_chunks)):
+                        chunk_print_states[printed_chunks[i]] = 2
+                        
+                        
+                    #mark all chunks in progress as obstacles
                     for i in range(0,len(printing_chunks)):
-                        print_state[printing_chunks[i]] = 1
-                        obstacles.append(chunk_positions[printing_chunks[i]])
-                    # print(chunk_configuration().print_state)
-                                 
+                        chunk_obstacles.append(chunk_positions[printing_chunks[i]])
+                        
                     #remove dependencies of printed chunks
-                    chunk_dependencies = remove_dependencies(chunk_dependencies, printing_chunks)
+                    chunk_dependencies = remove_dependencies(chunk_dependencies, printed_chunks)
                     # print(chunk_configuration.chunk_dependencies)
                     
-                    #set new robot starting positions
-                    robot_starting_positions = robot_goal_positions
-                    # print(robot_starting_positions)
+                    #set new robot starting positions and set working robots as obstacles
+                    robot_starting_positions = []
+                    robot_obstacles = []
+                    for i in range(0,len(robot_states)):
+                        if robot_states[i] == 0:
+                            robot_starting_positions.append(robot_positions[i])
+                        else:
+                            robot_obstacles.append(robot_positions[i])
+                            
+                    obstacles = chunk_obstacles+robot_obstacles
                     
-                    
-                    
-                    #WIP
-                    #Check if another robot can start moving during current move phase
-                    
-                    #If yes, stop the move at the position where the next move would start and continue
-                
-                    #add movement time to print time
-                    total_print_time = total_print_time + longest_move_time + print_time
         
                 except ValueError:
+                    print("Path Error")
                     path_error = True
                     print_state = [1]
-                    total_print_time = 1000
+                    elapsed_time = 1000
         
                 
-                iterations = iterations + 1
-
+            else:
+                #This means there are
+                print("No available chunks")
+        else:
+            print("All robots in use")
+            #calculate global elapsed time based on shortest next action time
+            elapsed_time += (min(time_current_action))
+            print("Elapsed Time: " + str(elapsed_time))
+            time_current_action -= (min(time_current_action))
+            print("Time Current Action: " +str(time_current_action))
+            
+            #set robot states of finished robots back to waiting
+            num_chunks_printed_iteration = 0
+            robots_finished = []
+            for i in range(0,len(robot_states)):
+                if time_current_action[i] == 0:
+                    robot_states[i] = 0
+                    num_chunks_printed_iteration += 1
+                    robots_finished.append(i)
+            
+            #mark the chunk that finished printing as printed
+            printed_chunks = []
+            for i in range(0,num_chunks_printed_iteration):
+                printed_chunks.append(robot_schedules[robots_finished[i]][-1])
+            
+            #mark only printed chunks as printed
+            for i in range(0,len(printed_chunks)):
+                chunk_print_states[printed_chunks[i]] = 2
+                
+            #mark all chunks in progress as obstacles
+            for i in range(0,len(printing_chunks)):
+                chunk_obstacles.append(chunk_positions[printing_chunks[i]])
+                         
+            #remove dependencies of printed chunks
+            chunk_dependencies = remove_dependencies(chunk_dependencies, printed_chunks)
+            # print(chunk_configuration.chunk_dependencies)
+            
+            #set new robot starting positions and set working robots as obstacles
+            robot_starting_positions = []
+            robot_obstacles = []
+            for i in range(0,len(robot_states)):
+                if robot_states[i] == 0:
+                    robot_starting_positions.append(robot_positions[i])
+                else:
+                    robot_obstacles.append(robot_positions[i])
+                    
+            obstacles = chunk_obstacles+robot_obstacles
+            
+        iterations = iterations + 1
+    
+    total_print_time = elapsed_time
+    print("Total Print Time: "+str(total_print_time))
     return(total_print_time, path_error)
     
     
@@ -300,23 +387,5 @@ if __name__ == '__main__':
     print("Total Print Time: " + str(total_print_time))
     
     
- ## for randomchunk generation
-"""
-#the number of chunks
-chunk_number = 7
-#the printing time (minutes) it takes for each chunk
-chunk_print_time = np.round(np.random.rand(1,chunk_number)*10)
-#The lowest level chunk upon which each chunk is dependent, can be empty
-chunk_dependencies = [[]]*chunk_number
-#This is so that it ignores the first 20 percent as having no dependencies
-for i in range(int(chunk_number*.2),chunk_number):
-    chunk_dependencies[i] = [(int(np.round(np.random.rand()*chunk_number)))]
-    
-#direction the chunk needs to be printed from 0 = N, 1 = E, etc
-print_direction = np.zeros(chunk_number)
-for i in range(0, chunk_number):
-    print_direction[i] = int(np.floor(np.random.rand()*4))
-"""
-
 
 
