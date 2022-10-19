@@ -157,13 +157,18 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
     chunk_number = len(chunk_job)    
     print_state = np.zeros(chunk_number)
     robot_state = np.zeros(len(robot_starting_positions))
-    time_until_next_action = np.zeros(len(robot_starting_positions))
+    robot_next_state = np.zeros(len(robot_starting_positions))
+    time_current_action = np.zeros(len(robot_starting_positions))
+    time_next_action = np.zeros(len(robot_starting_positions))
+    
     
     total_print_time = 0
     obstacles = []   
     
     iterations = 0
     global_time = 0
+    
+    
     
     while min(print_state) <= 0:
     # for iterations in range(0,6):
@@ -179,11 +184,15 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
             if printable_chunks != []:
                 #Find the robot position for all printable chunks
                 printable_chunk_robot_positions = robot_chunk_positions(printable_chunks, chunk_positions, print_direction)
-        
-                (robot_goal_positions, printing_chunks, robot_schedules) =  min_cost(robot_starting_positions, printable_chunk_robot_positions, printable_chunks, robot_schedules)
+                
+                #Update this method to take in all robot states and assigne the ones that are waiting
+                (robot_goal_positions, printing_chunks, robot_schedules, moving_robots) =  min_cost(robot_starting_positions, printable_chunk_robot_positions, printable_chunks, robot_schedules)
                 print("Printing Chunks: " + str(printing_chunks))
         
-                
+                #set all available robots to move
+                for robot in moving_robots:
+                    robot_state[robot] = 1
+                        
                 #calculate robot path and path time
                 #make floor for this configuration
                 grid_size_multiplier = floor_maker.make_floor(floor_size[0], floor_size[1], robot_starting_positions, robot_goal_positions, obstacles)
@@ -205,20 +214,24 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
                     
                     #WIP
                     #calculate movement time for each robot
-                    robot_move_time = (robot_path_lengths/(grid_size_multiplier/GRID_SIZE))*tuning_variables.robot_speed
-        
-        
-        
+                    robot_move_time = ((robot_path_lengths-1)/(2))*tuning_variables.robot_speed
+                    print("Robot Move Time " + str(robot_move_time))
+                    
+                    for robot in moving_robots:
+                        time_current_action[moving_robots[robot]] += robot_move_time[robot]
+                        
+                    
                     #WIP
                     #Find shortest print time and which robot is printing that chunk
                     printing_chunks_time = np.zeros(len(printing_chunks))
                     for i in range(0,len(printing_chunks)):
                         printing_chunks_time[i] = chunk_print_time[printing_chunks[i]]
                     print_time = max(printing_chunks_time)
-        
+                    print("Chunk Print Times "+ str(printing_chunks_time))
                     
+                    #make sure no robot needs to move while current move action is occuring
+                    # if (max(time_until_next_action)-min(time_until_next_action)) < 
                     
-        
                     #WIP
                     #mark only printed chunks as printed
                     for i in range(0,len(printing_chunks)):
@@ -234,36 +247,24 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
                     robot_starting_positions = robot_goal_positions
                     # print(robot_starting_positions)
                     
-                    iterations = iterations + 1
                     
+                    
+                    #WIP
+                    #Check if another robot can start moving during current move phase
+                    
+                    #If yes, stop the move at the position where the next move would start and continue
+                
+                    #add movement time to print time
+                    total_print_time = total_print_time + longest_move_time + print_time
         
                 except ValueError:
                     path_error = True
                     print_state = [1]
                     total_print_time = 1000
         
-        
                 
-        
-            longest_move_time = max(robot_move_time)
-            
-            #WIP
-            #Check if another robot can start moving during current move phase
-            
-            #If yes, stop the move at the position where the next move would start and continue
-        
-            #add movement time to print time
-            total_print_time = total_print_time + longest_move_time + print_time
-            
-            
-        
-            #end loop
-    # print("Schedule: " + str(robot_schedules))
-    # print("Total Print Time: " + str(total_print_time))
-        
-    # output_folder = 
-    
-    # return(path, robot_schedules)
+                iterations = iterations + 1
+
     return(total_print_time, path_error)
     
     
@@ -281,14 +282,18 @@ if __name__ == '__main__':
     #                       [0,4],[1,4],[13,2],[14,2],[6,2],[6,1],[10,4],[10,5],\
     #                       [0,3],[1,3],[13,3],[14,3],[7,2],[7,1],[11,4],[11,5]]
     
-    chunk_positions = [[14, 2],[14, 3], [7, 0],[8, 0],[7, 8],[7, 9],[13, 7],[14, 7], \
-                       [13, 2],     [13, 3],     [7, 1],     [8, 1],     [6, 8],     [6, 9],     [13, 8],     [14, 8],\
-                        [12, 2],     [12, 3],     [7, 2],     [8, 2],     [5, 8],     [5, 9],     [13, 9],     [14, 9]]
+    # chunk_positions = [[14, 2],[14, 3], [7, 1],[8, 1],[7, 8],[7, 9],[13, 7],[14, 7], \
+    #                    [13, 2],     [13, 3],     [7, 2],     [8, 2],     [6, 8],     [6, 9],     [13, 8],     [14, 8],\
+    #                     [12, 2],     [12, 3],     [7, 3],     [8, 3],     [5, 8],     [5, 9],     [13, 9],     [14, 9]]
+    
+    chunk_positions = [[10, 6], [9, 6], [13, 0], [13, 1], [4, 6], [4, 7], [5, 0], [6, 0], [10, 5], [9, 5], [12, 0], [12, 1], [3, 6], [3, 7], [5, 1], [6, 1], [10, 4], [9, 4], [11, 0], [11, 1], [2, 6], [2, 7], [5, 2], [6, 2]]
         
     
+    # placement_visualizer.placement_vis(floor_size, chunk_positions, chunk_job)
+        
     chunk_number = len(chunk_job)
     # job_directions = [0,2,1,1]   
-    job_directions = [3, 2, 3, 2]   
+    job_directions = [0, 3, 3, 2] 
     print_direction = chunk_print_direction(job_directions, chunk_job)
                       
     (total_print_time, path_error) = schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job, chunk_print_time, chunk_positions, print_direction)

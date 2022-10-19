@@ -21,7 +21,7 @@ def scrub_paths(paths):
                     new_path.append(point)
         new_path = np.array(new_path)
         robot_paths.append(new_path)
-        print(new_path)
+        # print(new_path)
         robot_path_lengths[robot] = len(new_path)
     
     # #correct paths to disallow diagonals
