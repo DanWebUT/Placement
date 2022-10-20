@@ -16,10 +16,21 @@ CHUNKS IN EACH ROW AND COLUMN
 ## inputs
 #four equal jobs of 6 chunks
 
-chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
-                      [0],[1,8],[2],[3,10],[4],[5,12],[6],[7,14],\
-                      [8],[9,16],[10],[11,18],[12],[13,20],[14],[15,22]]
-chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
+# chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
+#                       [0],[1,8],[2],[3,10],[4],[5,12],[6],[7,14],\
+#                       [8],[9,16],[10],[11,18],[12],[13,20],[14],[15,22]]
+# chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
+# chunk_print_time = [89., 82., 89., 84., 85., 80., 83., 87., 86., 81., 82., 87., 84., 64., 67., 78., \
+#         84., 94., 87., 49., 86., 89., 86., 83.]
+# robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
+# floor_size = [8,6]
+
+#four equal jobs of 6 chunks rotated 90 degrees
+chunk_dependencies = [[],[0, 2],[],[],[3, 5],[],[],[6, 8], [],[],[9, 11],[],\
+                      [0],[1,12,14],[2],[3],[4,15,17],[5],[6],[7,18,20],[8],[9],[10,21,23],[11]]
+    
+chunk_job = [[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3],[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3]]
+
 chunk_print_time = [89., 82., 89., 84., 85., 80., 83., 87., 86., 81., 82., 87., 84., 64., 67., 78., \
         84., 94., 87., 49., 86., 89., 86., 83.]
 robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
@@ -117,10 +128,13 @@ def place_chunks(job_starting_posiitons, print_direction, chunk_job, chunk_depen
             else:
                 row_width = 1
         else:
-            if chunk_dependencies[chunks_in_job[job][(chunks_in_job[job].index(last_indep)+1)]] == [last_indep]:
-                row_width = chunks_in_job[job].index(last_indep)+1 - chunks_in_job[job].index(initial_chunks[job]) +1
-            else:
-                row_width = chunks_in_job[job].index(last_indep) - chunks_in_job[job].index(initial_chunks[job]) +1
+            try:
+                if chunk_dependencies[chunks_in_job[job][(chunks_in_job[job].index(last_indep)+1)]] == [last_indep]:
+                    row_width = chunks_in_job[job].index(last_indep)+1 - chunks_in_job[job].index(initial_chunks[job]) +1
+                else:
+                    row_width = chunks_in_job[job].index(last_indep) - chunks_in_job[job].index(initial_chunks[job]) +1
+            except IndexError:
+                print("What went wrong")
                 
         #find column length
         column_length = int(len(chunks_in_job[job])/row_width)
@@ -224,11 +238,12 @@ def gene_to_tuple(child):
         job_direction[job] = child[job*3+2]
     return(job_starting_posiitons, job_direction)
 
-def create_random_configuration(floor_size, chunk_dependencies, chunk_job, robot_starting_positions, chunk_print_time):
-    chunk_dep_iteration = copy.deepcopy(chunk_dependencies)
+def create_random_configuration(floor_size, chunk_dependencies, chunk_job, robot_starting_positions, chunk_print_time): 
     valid_positions = False
     number_attempts = 0
-    while valid_positions == False:    
+    while valid_positions == False:
+        chunk_dep_iteration = copy.deepcopy(chunk_dependencies)
+        print(number_attempts)
         (job_starting_posiitons, job_directions) = random_placement(floor_size, chunk_dep_iteration, chunk_job)
         (chunk_positions, valid_positions) = place_chunks(job_starting_posiitons, job_directions, chunk_job, chunk_dep_iteration, floor_size, robot_starting_positions)
         number_attempts += 1
@@ -238,6 +253,10 @@ def create_random_configuration(floor_size, chunk_dependencies, chunk_job, robot
             (total_print_time, path_error) = scheduler.schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
             if path_error == True:
                 valid_positions = False
+    
+    #For visualization
+    placement_visualizer.placement_vis(floor_size, chunk_positions, chunk_job)
+    
     return(total_print_time, job_starting_posiitons, job_directions)
                     
 if __name__ == '__main__':
@@ -272,7 +291,10 @@ if __name__ == '__main__':
     population_tuple = []
     
     for individual in range(0,num_pop):
-        (total_print_time, job_starting_posiitons, job_directions) = create_random_configuration(floor_size, chunk_dependencies, chunk_job, robot_starting_positions, chunk_print_time)
+        chunk_dep_iteration = copy.deepcopy(chunk_dependencies)
+        print(chunk_dependencies)
+        print(chunk_dep_iteration)
+        (total_print_time, job_starting_posiitons, job_directions) = create_random_configuration(floor_size, chunk_dep_iteration, chunk_job, robot_starting_positions, chunk_print_time)
         
         print(total_print_time)
         
