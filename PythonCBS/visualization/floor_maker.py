@@ -60,10 +60,10 @@ def make_floor(num_FT_x, num_FT_y, rob_start_pos, rob_goal_pos, filled_pos):
                 file.write("  " + str(spaces_counter)+ ":\n")
                 spaces_counter += 1
                 (x, y, mid) = conv_coord(i, j)
-                x_start = int(x - mid/4) + sizes.robot_offset
-                y_start = int(y - mid/4)  + sizes.robot_offset
-                x_end = int(x + mid/4) + sizes.robot_offset
-                y_end = int(y + mid/4) + sizes.robot_offset
+                x_start = int(x - mid/2) + sizes.robot_offset
+                y_start = int(y - mid/2)  + sizes.robot_offset
+                x_end = int(x + mid/2) + sizes.robot_offset
+                y_end = int(y + mid/2) + sizes.robot_offset
                 x_start = max(0,x_start)
                 y_start = max(0,y_start)
                 x_end = min(x_max,x_end)

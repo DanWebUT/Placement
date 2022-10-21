@@ -75,15 +75,17 @@ def astar(maze, start, end, allow_diagonal_movement = False):
     while len(open_list) > 0:
         outer_iterations += 1
 
+        # Get the current node
+        current_node = heapq.heappop(open_list)
+        closed_list.append(current_node)
+        
         if outer_iterations > max_iterations:
           # if we hit this point return the path such as it is
           # it will not contain the destination
           warn("giving up on pathfinding too many iterations")
           return return_path(current_node)       
         
-        # Get the current node
-        current_node = heapq.heappop(open_list)
-        closed_list.append(current_node)
+        
 
         # Found the goal
         if current_node == end_node:
