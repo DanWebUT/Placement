@@ -50,8 +50,8 @@ class Planner:
                    goals: List[Tuple[int, int]],
                    assign:Callable = min_cost,
                    max_iter:int = 200,
-                   low_level_max_iter:int = 500,
-                   max_process:int = 10,
+                   low_level_max_iter:int = 1000,
+                   max_process:int = 20,
                    debug:bool = False) -> np.ndarray:
 
         self.low_level_max_iter = low_level_max_iter
