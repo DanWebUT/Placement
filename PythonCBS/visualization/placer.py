@@ -165,8 +165,9 @@ def place_chunks(job_starting_posiitons, print_direction, chunk_job, chunk_depen
                 chunk_counter += 1
         
         #calculate restricted positions
+        #there is a one wide gap on the sides
         for row in range(0,column_length+1):
-            for column in range(0,row_width+1):
+            for column in range(-1,row_width+1):
                 chunk_position = np.array(chunk_positions[initial_chunks[job]]) + np.array(trans_direction)*column + np.array(job_direction)*row
                 restricted_positions.append([chunk_position[0],chunk_position[1]])
                 

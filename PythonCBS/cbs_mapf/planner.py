@@ -38,7 +38,7 @@ class Planner:
                    goals: List[Tuple[int, int]],
                    assign:Callable = min_cost,
                    max_iter:int = 200,
-                   low_level_max_iter:int = 100,
+                   low_level_max_iter:int = 500,
                    max_process:int = 10,
                    debug:bool = False) -> np.ndarray:
 
