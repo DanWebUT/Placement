@@ -8,12 +8,13 @@ import numpy as np
 import floor_maker
 import placement_visualizer
 import visualizer
-from cbs_mapf import planner
 import yaml
 import math
 import time
 import path_scrubber
 import copy
+
+from cbs_mapf import planner
 
 
 class tuning_variables:

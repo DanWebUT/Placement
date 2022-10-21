@@ -13,11 +13,11 @@ from itertools import combinations
 from copy import deepcopy
 import numpy as np
 
-# The low level planner for CBS is the Space-Time A* planner
-# https://github.com/GavinPHR/Space-Time-AStar
-
 import sys
 import os
+
+# The low level planner for CBS is the Space-Time A* planner
+# https://github.com/GavinPHR/Space-Time-AStar
 
 current_path = os.getcwd()
 print(current_path)
