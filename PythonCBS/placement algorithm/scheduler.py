@@ -6,8 +6,8 @@ phase) and call the floor maker and cbs algorithm at each step of the process
 """
 import numpy as np
 import floor_maker
-# import placement_visualizer
-# import visualizer
+import placement_visualizer
+import visualizer
 import yaml
 import math
 # import time
@@ -17,7 +17,7 @@ import os
 import sys
 
 current_path = os.getcwd()
-(PythonCBS, visualization) = os.path.split(current_path)
+(PythonCBS, visualization_path) = os.path.split(current_path)
 (Placement, PythonCBS) = os.path.split(PythonCBS)
 filepath = os.path.join(Placement, 'PythonCBS\cbs_mapf')
 
@@ -25,6 +25,7 @@ sys.path.insert(0, filepath)
 
 from planner import Planner
 
+visualization = True
 
 class tuning_variables:
     #the time in minutes it takes for a robot to move from one grid space to another
@@ -283,7 +284,8 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
                     robot_move_time = ((robot_path_lengths))*tuning_variables.robot_speed
                     
                     #visualize each step
-                    # visualizer.visualizer()
+                    if visualization == True:
+                        visualizer.visualizer()
                     
                     #FOR TESTING
                     # print("Robot Move Time " + str(robot_move_time))
@@ -438,7 +440,8 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
                         robot_move_time = ((robot_path_lengths))*tuning_variables.robot_speed
                         
                         #visualize each step
-                        # visualizer.visualizer()
+                        if visualization == True:
+                            visualizer.visualizer()
                         
                         #FOR TESTING
                         # print("Robot Move Time " + str(robot_move_time))
@@ -617,7 +620,7 @@ if __name__ == '__main__':
     
        
     
-    # placement_visualizer.placement_vis(floor_size, chunk_positions, chunk_job)
+    placement_visualizer.placement_vis(floor_size, chunk_positions, chunk_job)
         
     chunk_number = len(chunk_job)
     # job_directions = [0,2,1,1]   
