@@ -195,7 +195,7 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
     
     iteration_count = 0
     
-    while min(chunk_print_states) <= 1 and iteration_count <=100:
+    while min(chunk_print_states) <= 1 and iteration_count <=50:
         iteration_count += 1
         #Find all printable chunks
         printable_chunks = independent_chunks(chunk_number, chunk_dependencies, chunk_print_states)
