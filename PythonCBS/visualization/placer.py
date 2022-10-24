@@ -244,7 +244,10 @@ def create_random_configuration(floor_size, chunk_dependencies, chunk_job, robot
     number_attempts = 0
     while valid_positions == False:
         chunk_dep_iteration = copy.deepcopy(chunk_dependencies)
-        print(number_attempts)
+        
+        #FOR TESTING
+        # print(number_attempts)
+        
         (job_starting_posiitons, job_directions) = random_placement(floor_size, chunk_dep_iteration, chunk_job)
         (chunk_positions, valid_positions) = place_chunks(job_starting_posiitons, job_directions, chunk_job, chunk_dep_iteration, floor_size, robot_starting_positions)
         number_attempts += 1
@@ -256,7 +259,7 @@ def create_random_configuration(floor_size, chunk_dependencies, chunk_job, robot
                 valid_positions = False
     
     #For visualization
-    placement_visualizer.placement_vis(floor_size, chunk_positions, chunk_job)
+    # placement_visualizer.placement_vis(floor_size, chunk_positions, chunk_job)
     
     return(total_print_time, job_starting_posiitons, job_directions)
                     
@@ -293,10 +296,14 @@ if __name__ == '__main__':
     
     for individual in range(0,num_pop):
         chunk_dep_iteration = copy.deepcopy(chunk_dependencies)
-        print(chunk_dependencies)
-        print(chunk_dep_iteration)
+        
+        #FOR TESTING
+        # print(chunk_dependencies)
+        # print(chunk_dep_iteration)
+        
         (total_print_time, job_starting_posiitons, job_directions) = create_random_configuration(floor_size, chunk_dep_iteration, chunk_job, robot_starting_positions, chunk_print_time)
         
+        #FOR TESTING
         print(total_print_time)
         
         #evaluate results    

@@ -9,7 +9,7 @@ from copy import deepcopy
 import cv2
 import numpy as np
 import yaml
-import path_scrubber
+import path_analyzer
 import sys
 import os
 
@@ -47,13 +47,13 @@ class Simulator:
         before = time.time()
         prepath = self.planner.plan(START, GOAL, debug=False)
         after = time.time()
-        print('Time elapsed:', "{:.4f}".format(after-before), 'second(s)')
+        # print('Time elapsed:', "{:.4f}".format(after-before), 'second(s)')
         
         # (robot_path_lengths,robot_paths,robot_visualize_paths) = path_scrubber.scrub_paths(prepath)
         # prepath = prepath
         
         self.path = prepath #robot_visualize_paths #
-        print(self.path)
+        # print(self.path)
         
 
         # Assign each agent a colour

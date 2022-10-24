@@ -20,7 +20,7 @@ import os
 # https://github.com/GavinPHR/Space-Time-AStar
 
 current_path = os.getcwd()
-print(current_path)
+# print(current_path)
 (PythonCBS, visualization) = os.path.split(current_path)
 (Placement, PythonCBS) = os.path.split(PythonCBS)
 filepath = os.path.join(Placement, 'PythonCBS\staAstar\stastar')
