@@ -11,11 +11,11 @@ import yaml
 
 class sizes():
     #size multiplier for floor tiles to mm
-    size_multiplier = 200 #mm
+    size_multiplier = 100 #mm
     #how large the robot is in the visualization
-    robot_size = 25 #mm
+    robot_size = 0 #mm
     #not quite sure, but changes resolution of the visualization
-    grid_size = 25
+    grid_size = 100
     robot_offset = 0
 
 def conv_coord(grid_pos_x, grid_pos_y):
@@ -40,8 +40,8 @@ def make_floor(num_FT_x, num_FT_y, rob_start_pos, rob_goal_pos, filled_pos):
         file.write("GOAL:\n")
         for i in range(0,num_robots):
             (x, y, mid) = conv_coord(rob_goal_pos[i][0], rob_goal_pos[i][1])
-            file.write("- !!python/tuple [" + str(int(x+mid)) + ", " + \
-                       str(int(y+mid)) + "]\n")
+            file.write("- !!python/tuple [" + str(int(x)) + ", " + \
+                       str(int(y)) + "]\n")
                 
         file.write("GRID_SIZE: " + str(sizes.grid_size) + "\n")
         file.write("RECT_OBSTACLES:\n")
@@ -52,36 +52,15 @@ def make_floor(num_FT_x, num_FT_y, rob_start_pos, rob_goal_pos, filled_pos):
         file.write("  - [" + str(0) + ", " + str(0) + "]\n")
         file.write("  - [" + str(x_max) + ", " + str(y_max) + "]\n")
         
-        #disallowed areas in the middle of grid spaces
-        num_spaces = (num_FT_x*2+1)*(num_FT_y*2+1)
-        spaces_counter = 1
-        for i in range(0,num_FT_x*2+1):
-            for j in range(0,num_FT_y*2+1):
-                file.write("  " + str(spaces_counter)+ ":\n")
-                spaces_counter += 1
-                (x, y, mid) = conv_coord(i, j)
-                x_start = int(x - mid/2) #+ (sizes().robot_size*1.5)) + sizes.robot_offset
-                y_start = int(y - mid/2) # + (sizes().robot_size*1.5)) + sizes.robot_offset
-                x_end = int(x + mid/2)# - (sizes().robot_size*1.5)) + sizes.robot_offset
-                y_end = int(y + mid/2)# - (sizes().robot_size*1.5)) + sizes.robot_offset
-                x_start = max(0,x_start)
-                y_start = max(0,y_start)
-                x_end = min(x_max,x_end)
-                y_end = min(y_max,y_end)
-                file.write("  - [" + str(x_start) + ", " + str(y_start) + "]\n")
-                file.write("  - [" + str(x_end) + ", " + str(y_end) + "]\n")
-        
         #filled chunks
         num_chunks = len(filled_pos)
         for i in range(0,num_chunks):
-            file.write("  " + str(i+num_spaces)+ ":\n")
+            file.write("  " + str(i+1)+ ":\n")
             (x, y, mid) = conv_coord(filled_pos[i][0], filled_pos[i][1])
-            x_start = int(x + sizes.robot_offset)
-            y_start = int(y + sizes.robot_offset)
-            x_end = int(x + mid*2 + sizes.robot_offset)
-            y_end = int(y + mid*2 + sizes.robot_offset)
-            file.write("  - [" + str(x_start) + ", " + str(y_start) + "]\n")
-            file.write("  - [" + str(x_end) + ", " + str(y_end) + "]\n")
+            x = int(x + sizes.grid_size/2)
+            y = int(y + sizes.grid_size/2)
+            file.write("  - [" + str(x) + ", " + str(y) + "]\n")
+            file.write("  - [" + str(x) + ", " + str(y) + "]\n")
             
         #robot radius
         file.write("ROBOT_RADIUS: " + str(sizes().robot_size) + "\n")
@@ -90,8 +69,8 @@ def make_floor(num_FT_x, num_FT_y, rob_start_pos, rob_goal_pos, filled_pos):
         file.write("START:\n")
         for i in range(0,num_robots):
             (x, y, mid) = conv_coord(rob_start_pos[i][0], rob_start_pos[i][1])
-            file.write("- !!python/tuple [" + str(int(x+mid)) + ", " + \
-                       str(int(y+mid)) + "]\n")
+            file.write("- !!python/tuple [" + str(int(x)) + ", " + \
+                       str(int(y)) + "]\n")
         
         return(sizes.size_multiplier)
 
@@ -99,4 +78,4 @@ def make_floor(num_FT_x, num_FT_y, rob_start_pos, rob_goal_pos, filled_pos):
 # rob_start_pos = [[0,0],[0,5]]
 # rob_goal_pos = [[12,3],[14,3]]
 # filled_pos = [[2,0]]
-# make_floor(8, 3, rob_start_pos, rob_goal_pos, filled_pos)
+# make_floor(8, 6, rob_start_pos, rob_goal_pos, filled_pos)

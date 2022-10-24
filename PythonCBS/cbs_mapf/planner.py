@@ -13,14 +13,26 @@ from itertools import combinations
 from copy import deepcopy
 import numpy as np
 
+import sys
+import os
+
 # The low level planner for CBS is the Space-Time A* planner
 # https://github.com/GavinPHR/Space-Time-AStar
-from stastar.planner import Planner as STPlanner
 
-from .constraint_tree import CTNode
-from .constraints import Constraints
-from .agent import Agent
-from .assigner import *
+current_path = os.getcwd()
+# print(current_path)
+(PythonCBS, visualization) = os.path.split(current_path)
+(Placement, PythonCBS) = os.path.split(PythonCBS)
+filepath = os.path.join(Placement, 'PythonCBS\staAstar\stastar')
+sys.path.insert(0, filepath)
+
+
+from STAplanner import Planner as STPlanner
+
+from constraint_tree import CTNode
+from constraints import Constraints
+from agent import Agent
+from assigner import *
 class Planner:
 
     def __init__(self, grid_size: int,
@@ -38,8 +50,8 @@ class Planner:
                    goals: List[Tuple[int, int]],
                    assign:Callable = min_cost,
                    max_iter:int = 200,
-                   low_level_max_iter:int = 100,
-                   max_process:int = 10,
+                   low_level_max_iter:int = 1000,
+                   max_process:int = 20,
                    debug:bool = False) -> np.ndarray:
 
         self.low_level_max_iter = low_level_max_iter
