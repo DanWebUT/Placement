@@ -13,43 +13,10 @@ from numpy.random import rand
 from copy import deepcopy
 from time import time
 
-from scheduler import chunk_print_direction
-from scheduler import schedule
-
-# import placement_visualizer
 import os
 
-
-
-"""
-This is the main method that does the placement optimization. This algorithm uses
-a genetic algorithm to optimize placement position given a set of dependencies and
-a floor size (in floor tiles)
-THIS PLACEMENT METHOD IS ONLY APPLICABLE FOR RECTANGULAR JOBS THAT HAVE THE SAME NUMBER OF
-CHUNKS IN EACH ROW AND COLUMN
-"""
-## inputs
-#four equal jobs of 6 chunks
-# chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
-#                       [0],[1,8],[2],[3,10],[4],[5,12],[6],[7,14],\
-#                       [8],[9,16],[10],[11,18],[12],[13,20],[14],[15,22]]
-# chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
-# chunk_print_time = [2253., 1899., 2253., 1899., 2253., 1899., 2253., 1899.,\
-#                     2929., 2490., 2929., 2490., 2929., 2490., 2929., 2490.,  \
-#                     1429., 1236., 1429., 1236., 1429., 1236., 1429., 1236.]
-# robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
-# floor_size = [8,6]
-
-# #four equal jobs of 6 chunks rotated 90 degrees
-chunk_dependencies = [[],[0, 2],[],[],[3, 5],[],[],[6, 8], [],[],[9, 11],[],\
-                      [0],[1,12,14],[2],[3],[4,15,17],[5],[6],[7,18,20],[8],[9],[10,21,23],[11]]
-    
-chunk_job = [[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3],[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3]]
-
-chunk_print_time = [2253., 2859., 1552., 2253., 2859., 1552., 2253., 2859., 1552., 2253., 2859., 1552., \
-        1894, 2598, 1194, 1894, 2598, 1194, 1894, 2598, 1194, 1894, 2598, 1194]
-robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
-floor_size = [8,6]
+from scheduler import chunk_print_direction
+from schedular import schedule
 
 def find_initial_chunks(number_jobs, chunk_dependencies, chunk_job):
     #identify initial chunks
@@ -83,7 +50,6 @@ def identify_chunks_in_job(number_jobs, number_chunks, chunk_job):
         chunks_in_job[chunk_job[chunk][0]] = chunks_in_job[chunk_job[chunk][0]] + [chunk]
     return(chunks_in_job)
 
-#generate random placement
 def random_placement(floor_size, chunk_dependencies, chunk_job):
     number_jobs = max(chunk_job)+1
     
@@ -303,192 +269,169 @@ def convergence_test(print_time_pop, num_pop, percent_random):
 
     return(convergence)    
 
-if __name__ == '__main__':
-    #GA parameters
-    num_pop = 20
-    chance_mutation = .05
-    chance_crossover = .4
-    # num_generations = 100
-    percent_elite = .2
-    percent_random = .2 #percent of new randomly generated populateion
-    
-    """
-    The GA is set up in a way where the best percent elite of the population is carried
-    to the next generation. Then the next percent crossover of the new population is created 
-    by crossover. These also have a chance of mutation and can be made up of non-unique parents
-    Finally, the remaining members are randomly generated
-    """
-    #Write to a folder
-    time_setting = int(round((time())/1000))
-    folder = "GA_Results/GA" + str(time_setting)
 
-    current_path = os.getcwd()
-    filepath = os.path.join(current_path,folder)
-    os.makedirs(filepath, exist_ok=True)
+##GA parameters
+num_pop = 20
+chance_mutation = .05
+chance_crossover = .4
+# num_generations = 100
+percent_elite = .2
+percent_random = .2 #percent of new randomly generated populateion
 
-    filename = "Print_Times"
-    config_filename = "Configurations"
-    complete_filename = os.path.join(filepath, filename +".txt")
-    config_complete_filename = os.path.join(filepath, config_filename +".txt")
+##original data
+floor_size = [8,6]
+chunk_dependencies = [[],[0, 2],[],[],[3, 5],[],[],[6, 8], [],[],[9, 11],[],\
+                      [0],[1,12,14],[2],[3],[4,15,17],[5],[6],[7,18,20],[8],[9],[10,21,23],[11]]
     
-    #find valid configurations
-    print_time_pop = [[]]*num_pop
-    population_tuple = []
+chunk_job = [[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3],[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3]]
+
+chunk_print_time = [2253., 2859., 1552., 2253., 2859., 1552., 2253., 2859., 1552., 2253., 2859., 1552., \
+        1894, 2598, 1194, 1894, 2598, 1194, 1894, 2598, 1194, 1894, 2598, 1194]
+robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
+
+##Continued Data
+generation = 1
+print_time_pop = []
+sorted_population_tuple = []
+
+#Writing data
+time_setting = int(round((time())/1000))
+folder = "GA_Results/GA" + str(time_setting)
+
+current_path = os.getcwd()
+filepath = os.path.join(current_path,folder)
+os.makedirs(filepath, exist_ok=True)
+
+filename = "Print_Times"
+config_filename = "Configurations"
+complete_filename = os.path.join(filepath, filename +".txt")
+config_complete_filename = os.path.join(filepath, config_filename +".txt")
+
+#genetic algorithm
+#find best results for selection and carry those over to new population
+num_elite = int(round(num_pop*percent_elite))
+num_crossover = int(round(num_pop-num_pop*(percent_elite+percent_random)))
+num_parents = num_elite+num_crossover
+num_new_random = int(num_pop*percent_random)
+
+
+convergence = convergence_test(print_time_pop, num_pop, 0)
+
+
+#setup convergence
+while convergence == False:
+    new_population = sorted_population_tuple[:num_elite]
+
+    #create remaining from these
+    probabilites = parent_probabilities(num_parents, print_time_pop)
+    for individual in range(0,int(num_crossover)):
+        valid_positions = False
+        
+        #make sure child is valid configuration and that it forms in less than 100 iterations
+        iteration_count = 0
+        while valid_positions == False and iteration_count < 50:            
+            #crossover
+            if rand() < chance_crossover:
+                p1_index = select_parent(probabilites)
+                p2_index = select_parent(probabilites)
+                #make sure parents are unique
+                while p1_index == p2_index:
+                    p2_index = select_parent(probabilites)
+                
+                p1_genes = list_genes(sorted_population_tuple[p1_index])
+                p2_genes = list_genes(sorted_population_tuple[p2_index])
+                
+                child = crossover(p1_genes, p2_genes)
+            
+            else:
+                child_index = select_parent(probabilites)
+                child = list_genes(sorted_population_tuple[child_index])
+            
+            #mutation
+            mutation = False
+            if rand() < chance_mutation:
+                mutation = True
+                #generate random location
+                mutation_location = int(floor(rand()*len(child)))
+                
+                #generate change within bounds of that number
+                if (mutation_location)%3 == 0:
+                    #X coord mutation
+                    new_val = int(floor(rand()*floor_size[0]))
+                elif (mutation_location+2)%3 == 0:
+                    #Y coord mutation
+                    new_val = int(floor(rand()*floor_size[1]))
+                else:
+                    #direction mutation
+                    new_val = int(floor(rand()*4))
+                    
+                child[mutation_location] = new_val
+                
+                #make sure direction is in range 0 to 3
+                
+                
+            #check validity 
+            chunk_dep_iteration = deepcopy(chunk_dependencies)
+            (child_job_starting_positions, child_job_directions) = gene_to_tuple(child)
+            (chunk_positions, valid_positions) = place_chunks(child_job_starting_positions, [child_job_directions], chunk_job, chunk_dep_iteration, floor_size, robot_starting_positions)
+            if valid_positions == True:
+                print_direction = chunk_print_direction(child_job_directions, chunk_job)     
+                (total_print_time, path_error) = schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
+                if path_error == True:
+                    valid_positions = False
+            
+            iteration_count += 1
+        
+        #if child does not form in 100 iterations, pick parent one to move to next generation
+        if iteration_count >= 100:
+            iteration_tuple = sorted_population_tuple[p1_index]
+            
+            #FOR TESTING
+            # print("Iteration count exceeded, carry " + str(p1_index) + " to next generation")
+            # print("Mutation is " + str(mutation))
+            # print(total_print_time)
+        else:
+            iteration_tuple = (child_job_starting_positions, array(child_job_directions), total_print_time)
+            
+            #FOR TESTING
+            # print("Parents: " + str(p1_index) + " and " + str(p2_index))
+            # print("Mutation is " + str(mutation))
+            # print(total_print_time)
+
+        #add to new population once validity is confirmed
+        new_population.append(iteration_tuple)
+        print_time_pop[num_elite+individual] = total_print_time
     
-    for individual in range(0,num_pop):
-        chunk_dep_iteration = deepcopy(chunk_dependencies)
+    for individual in range(0,int(num_new_random)):
+        (total_print_time, job_starting_posiitons, job_directions) = create_random_configuration(floor_size, chunk_dependencies, chunk_job, robot_starting_positions, chunk_print_time)
         
-        #FOR TESTING
-        # print(chunk_dependencies)
-        # print(chunk_dep_iteration)
-        
-        (total_print_time, job_starting_posiitons, job_directions) = create_random_configuration(floor_size, chunk_dep_iteration, chunk_job, robot_starting_positions, chunk_print_time)
-        
-        #FOR TESTING
-        print(total_print_time)
+        # print(total_print_time)
         
         #evaluate results    
-        print_time_pop[individual] = total_print_time  
         iteration_tuple = (job_starting_posiitons, job_directions, total_print_time)
-        population_tuple.append(iteration_tuple)
-        
-    sorted_population_tuple = sorted(population_tuple, key = lambda individual: individual[2])
+        new_population.append(iteration_tuple)
+        print_time_pop[num_elite+num_crossover+individual] = total_print_time
     
-    print_time_pop.sort() 
+    print_time_pop.sort()
+    new_population = sorted(new_population, key = lambda individual: individual[2])
+    
+    population_tuple = deepcopy(new_population)
 
-    print("Original population print time: \n" + str(print_time_pop))
-    #create empty file
-    with open(complete_filename, "w") as file:
-        file.write("Original population print time: \n" + str(print_time_pop) + "\n")
+    #FOR TESTING
+    print("Generation " +str(generation) +" population print time: \n" + str(print_time_pop))
     
-    with open(config_complete_filename, "w") as file:
-        file.write("Original population configuration: \n" + str(sorted_population_tuple) + "\n")
-    
-    #genetic algorithm
-    #find best results for selection and carry those over to new population
-    num_elite = int(round(num_pop*percent_elite))
-    num_crossover = int(round(num_pop-num_pop*(percent_elite+percent_random)))
-    num_parents = num_elite+num_crossover
-    num_new_random = int(num_pop*percent_random)
-    
-    
-    convergence = convergence_test(print_time_pop, num_pop, 0)
-    
-    generation = 1
-    #setup convergence
-    while convergence == False:
-        new_population = sorted_population_tuple[:num_elite]
-    
-        #create remaining from these
-        probabilites = parent_probabilities(num_parents, print_time_pop)
-        for individual in range(0,int(num_crossover)):
-            valid_positions = False
-            
-            #make sure child is valid configuration and that it forms in less than 100 iterations
-            iteration_count = 0
-            while valid_positions == False and iteration_count < 50:            
-                #crossover
-                if rand() < chance_crossover:
-                    p1_index = select_parent(probabilites)
-                    p2_index = select_parent(probabilites)
-                    #make sure parents are unique
-                    while p1_index == p2_index:
-                        p2_index = select_parent(probabilites)
-                    
-                    p1_genes = list_genes(sorted_population_tuple[p1_index])
-                    p2_genes = list_genes(sorted_population_tuple[p2_index])
-                    
-                    child = crossover(p1_genes, p2_genes)
-                
-                else:
-                    child_index = select_parent(probabilites)
-                    child = list_genes(sorted_population_tuple[child_index])
-                
-                #mutation
-                mutation = False
-                if rand() < chance_mutation:
-                    mutation = True
-                    #generate random location
-                    mutation_location = int(floor(rand()*len(child)))
-                    
-                    #generate change within bounds of that number
-                    if (mutation_location)%3 == 0:
-                        #X coord mutation
-                        new_val = int(floor(rand()*floor_size[0]))
-                    elif (mutation_location+2)%3 == 0:
-                        #Y coord mutation
-                        new_val = int(floor(rand()*floor_size[1]))
-                    else:
-                        #direction mutation
-                        new_val = int(floor(rand()*4))
-                        
-                    child[mutation_location] = new_val
-                    
-                    #make sure direction is in range 0 to 3
-                    
-                    
-                #check validity 
-                chunk_dep_iteration = deepcopy(chunk_dependencies)
-                (child_job_starting_positions, child_job_directions) = gene_to_tuple(child)
-                (chunk_positions, valid_positions) = place_chunks(child_job_starting_positions, [child_job_directions], chunk_job, chunk_dep_iteration, floor_size, robot_starting_positions)
-                if valid_positions == True:
-                    print_direction = chunk_print_direction(child_job_directions, chunk_job)     
-                    (total_print_time, path_error) = schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
-                    if path_error == True:
-                        valid_positions = False
-                
-                iteration_count += 1
-            
-            #if child does not form in 100 iterations, pick parent one to move to next generation
-            if iteration_count >= 100:
-                iteration_tuple = sorted_population_tuple[p1_index]
-                
-                #FOR TESTING
-                # print("Iteration count exceeded, carry " + str(p1_index) + " to next generation")
-                # print("Mutation is " + str(mutation))
-                # print(total_print_time)
-            else:
-                iteration_tuple = (child_job_starting_positions, array(child_job_directions), total_print_time)
-                
-                #FOR TESTING
-                # print("Parents: " + str(p1_index) + " and " + str(p2_index))
-                # print("Mutation is " + str(mutation))
-                # print(total_print_time)
-    
-            #add to new population once validity is confirmed
-            new_population.append(iteration_tuple)
-            print_time_pop[num_elite+individual] = total_print_time
+    #Write print and configuration results
+    with open(complete_filename, "a+") as file:
+       file.write("Generation " +str(generation) +" population print time: \n" + str(print_time_pop) + "\n")
+       
+    with open(config_complete_filename, "a+") as file:
+        file.write("Generation " +str(generation) +" population configuration: \n" + str(new_population) + "\n")
         
-        for individual in range(0,int(num_new_random)):
-            (total_print_time, job_starting_posiitons, job_directions) = create_random_configuration(floor_size, chunk_dependencies, chunk_job, robot_starting_positions, chunk_print_time)
-            
-            # print(total_print_time)
-            
-            #evaluate results    
-            iteration_tuple = (job_starting_posiitons, job_directions, total_print_time)
-            new_population.append(iteration_tuple)
-            print_time_pop[num_elite+num_crossover+individual] = total_print_time
-        
-        print_time_pop.sort()
-        new_population = sorted(new_population, key = lambda individual: individual[2])
-        
-        population_tuple = deepcopy(new_population)
+    generation += 1
     
-        #FOR TESTING
-        print("Generation " +str(generation) +" population print time: \n" + str(print_time_pop))
-        
-        #Write print and configuration results
-        with open(complete_filename, "a+") as file:
-           file.write("Generation " +str(generation) +" population print time: \n" + str(print_time_pop) + "\n")
-           
-        with open(config_complete_filename, "a+") as file:
-            file.write("Generation " +str(generation) +" population configuration: \n" + str(new_population) + "\n")
-            
-        generation += 1
-        
-        convergence = convergence_test(print_time_pop, num_pop, percent_random)
-    
-    if convergence == True:
-        print("Converged in " + str(generation) + " generations!")
-        with open(config_complete_filename, "a+") as file:
-            file.write("Converged in " + str(generation) + " generations!")
+    convergence = convergence_test(print_time_pop, num_pop, percent_random)
+
+if convergence == True:
+    print("Converged in " + str(generation) + " generations!")
+    with open(config_complete_filename, "a+") as file:
+        file.write("Converged in " + str(generation) + " generations!")

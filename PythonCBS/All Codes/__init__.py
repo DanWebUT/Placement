@@ -1,8 +1,12 @@
-#!/usr/bin/env pypy3.9
+#!/usr/bin/env python3
 '''
 Author: Haoran Peng
 Email: gavinsweden@gmail.com
 '''
+from . import STAplanner
+from . import neighbour_table
+from . import grid
+from . import state
 from . import planner
 from . import assigner
 from . import agent

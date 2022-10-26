@@ -13,43 +13,10 @@ from numpy.random import rand
 from copy import deepcopy
 from time import time
 
-from scheduler import chunk_print_direction
-from scheduler import schedule
-
-# import placement_visualizer
 import os
 
-
-
-"""
-This is the main method that does the placement optimization. This algorithm uses
-a genetic algorithm to optimize placement position given a set of dependencies and
-a floor size (in floor tiles)
-THIS PLACEMENT METHOD IS ONLY APPLICABLE FOR RECTANGULAR JOBS THAT HAVE THE SAME NUMBER OF
-CHUNKS IN EACH ROW AND COLUMN
-"""
-## inputs
-#four equal jobs of 6 chunks
-# chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
-#                       [0],[1,8],[2],[3,10],[4],[5,12],[6],[7,14],\
-#                       [8],[9,16],[10],[11,18],[12],[13,20],[14],[15,22]]
-# chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
-# chunk_print_time = [2253., 1899., 2253., 1899., 2253., 1899., 2253., 1899.,\
-#                     2929., 2490., 2929., 2490., 2929., 2490., 2929., 2490.,  \
-#                     1429., 1236., 1429., 1236., 1429., 1236., 1429., 1236.]
-# robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
-# floor_size = [8,6]
-
-# #four equal jobs of 6 chunks rotated 90 degrees
-chunk_dependencies = [[],[0, 2],[],[],[3, 5],[],[],[6, 8], [],[],[9, 11],[],\
-                      [0],[1,12,14],[2],[3],[4,15,17],[5],[6],[7,18,20],[8],[9],[10,21,23],[11]]
-    
-chunk_job = [[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3],[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3]]
-
-chunk_print_time = [2253., 2859., 1552., 2253., 2859., 1552., 2253., 2859., 1552., 2253., 2859., 1552., \
-        1894, 2598, 1194, 1894, 2598, 1194, 1894, 2598, 1194, 1894, 2598, 1194]
-robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
-floor_size = [8,6]
+from scheduler import chunk_print_direction
+from scheduler import schedule
 
 def find_initial_chunks(number_jobs, chunk_dependencies, chunk_job):
     #identify initial chunks
@@ -83,7 +50,6 @@ def identify_chunks_in_job(number_jobs, number_chunks, chunk_job):
         chunks_in_job[chunk_job[chunk][0]] = chunks_in_job[chunk_job[chunk][0]] + [chunk]
     return(chunks_in_job)
 
-#generate random placement
 def random_placement(floor_size, chunk_dependencies, chunk_job):
     number_jobs = max(chunk_job)+1
     
@@ -304,7 +270,8 @@ def convergence_test(print_time_pop, num_pop, percent_random):
     return(convergence)    
 
 if __name__ == '__main__':
-    #GA parameters
+    
+    ##GA parameters
     num_pop = 20
     chance_mutation = .05
     chance_crossover = .4
@@ -312,57 +279,98 @@ if __name__ == '__main__':
     percent_elite = .2
     percent_random = .2 #percent of new randomly generated populateion
     
-    """
-    The GA is set up in a way where the best percent elite of the population is carried
-    to the next generation. Then the next percent crossover of the new population is created 
-    by crossover. These also have a chance of mutation and can be made up of non-unique parents
-    Finally, the remaining members are randomly generated
-    """
-    #Write to a folder
+    ##original data
+    floor_size = [8,6]
+    chunk_dependencies = [[],[0, 2],[],[],[3, 5],[],[],[6, 8], [],[],[9, 11],[],\
+                          [0],[1,12,14],[2],[3],[4,15,17],[5],[6],[7,18,20],[8],[9],[10,21,23],[11]]
+        
+    chunk_job = [[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3],[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3]]
+    
+    chunk_print_time = [2253., 2859., 1552., 2253., 2859., 1552., 2253., 2859., 1552., 2253., 2859., 1552., \
+            1894, 2598, 1194, 1894, 2598, 1194, 1894, 2598, 1194, 1894, 2598, 1194]
+    robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
+    
+    ##Continued Data
+    sorted_population_tuple = [(array([[ 1,  9],
+           [ 8,  8],
+           [12,  9],
+           [13,  4]]), array([2, 1, 2, 3]), 13656.0), (array([[ 4,  6],
+           [ 6,  4],
+           [12,  3],
+           [ 2,  3]]), array([2, 1, 3, 3]), 14738.0), (array([[15,  8],
+           [ 3,  6],
+           [ 0,  4],
+           [12,  1]]), array([3, 2, 1, 2]), 14744.0), (array([[11,  3],
+           [11,  9],
+           [ 1,  6],
+           [13,  2]]), array([2, 2, 2, 0]), 14745.0), (array([[12,  3],
+           [14,  8],
+           [ 5,  6],
+           [ 8,  3]]), array([1, 3, 2, 1]), 14745.0), (array([[11.,  3.],
+           [11.,  9.],
+           [ 1.,  6.],
+           [13.,  2.]]), array([2, 2, 2, 0]), 14745.0), (array([[12.,  3.],
+           [14.,  8.],
+           [ 5.,  6.],
+           [ 8.,  3.]]), array([1, 3, 2, 1]), 14745.0), (array([[12.,  3.],
+           [14.,  8.],
+           [ 5.,  6.],
+           [ 8.,  3.]]), array([1, 3, 2, 1]), 14745.0), (array([[12,  9],
+           [ 3,  4],
+           [ 6,  8],
+           [15,  4]]), array([2, 1, 1, 3]), 14746.0), (array([[12.,  9.],
+           [ 3.,  4.],
+           [ 6.,  8.],
+           [15.,  4.]]), array([2, 1, 1, 3]), 14746.0), (array([[12.,  9.],
+           [ 3.,  4.],
+           [ 6.,  8.],
+           [15.,  4.]]), array([2, 1, 1, 3]), 14746.0), (array([[ 9,  4],
+           [11,  2],
+           [ 5,  3],
+           [ 6,  9]]), array([2, 0, 0, 0]), 14897.0), (array([[13.,  5.],
+           [ 4.,  2.],
+           [ 6.,  7.],
+           [ 8.,  9.]]), array([0, 2, 0, 1]), 15128.0), (array([[13.,  5.],
+           [ 4.,  2.],
+           [ 1.,  6.],
+           [13.,  2.]]), array([0, 2, 2, 0]), 15151.0), (array([[ 6.,  1.],
+           [14.,  7.],
+           [ 6.,  9.],
+           [ 8.,  4.]]), array([2, 3, 2, 2]), 15442.0), (array([[ 6.,  1.],
+           [14.,  7.],
+           [ 6.,  9.],
+           [ 8.,  4.]]), array([2, 3, 2, 2]), 15442.0), (array([[ 4,  5],
+           [10,  6],
+           [10, 10],
+           [ 1, 10]]), array([1, 1, 0, 1]), 15447.0), (array([[12.,  5.],
+           [ 3.,  2.],
+           [12.,  8.],
+           [ 5.,  3.]]), array([1, 3, 2, 1]), 15449.0), (array([[12.,  1.],
+           [ 3.,  2.],
+           [12.,  8.],
+           [ 5.,  3.]]), array([3, 3, 2, 1]), 15457.0), (array([[12.,  9.],
+           [ 3.,  4.],
+           [ 6.,  9.],
+           [13.,  4.]]), array([2, 1, 2, 3]), 15599.0)]
+                                                                
+                                                                
+    generation = 1
+    print_time_pop = []
+    for individual in sorted_population_tuple:
+        print_time_pop.append(individual[2])
+    
+    #Writing data
     time_setting = int(round((time())/1000))
     folder = "GA_Results/GA" + str(time_setting)
-
+    
     current_path = os.getcwd()
     filepath = os.path.join(current_path,folder)
     os.makedirs(filepath, exist_ok=True)
-
+    
     filename = "Print_Times"
     config_filename = "Configurations"
     complete_filename = os.path.join(filepath, filename +".txt")
     config_complete_filename = os.path.join(filepath, config_filename +".txt")
-    
-    #find valid configurations
-    print_time_pop = [[]]*num_pop
-    population_tuple = []
-    
-    for individual in range(0,num_pop):
-        chunk_dep_iteration = deepcopy(chunk_dependencies)
-        
-        #FOR TESTING
-        # print(chunk_dependencies)
-        # print(chunk_dep_iteration)
-        
-        (total_print_time, job_starting_posiitons, job_directions) = create_random_configuration(floor_size, chunk_dep_iteration, chunk_job, robot_starting_positions, chunk_print_time)
-        
-        #FOR TESTING
-        print(total_print_time)
-        
-        #evaluate results    
-        print_time_pop[individual] = total_print_time  
-        iteration_tuple = (job_starting_posiitons, job_directions, total_print_time)
-        population_tuple.append(iteration_tuple)
-        
-    sorted_population_tuple = sorted(population_tuple, key = lambda individual: individual[2])
-    
-    print_time_pop.sort() 
-
-    print("Original population print time: \n" + str(print_time_pop))
-    #create empty file
-    with open(complete_filename, "w") as file:
-        file.write("Original population print time: \n" + str(print_time_pop) + "\n")
-    
-    with open(config_complete_filename, "w") as file:
-        file.write("Original population configuration: \n" + str(sorted_population_tuple) + "\n")
     
     #genetic algorithm
     #find best results for selection and carry those over to new population
@@ -374,7 +382,7 @@ if __name__ == '__main__':
     
     convergence = convergence_test(print_time_pop, num_pop, 0)
     
-    generation = 1
+    
     #setup convergence
     while convergence == False:
         new_population = sorted_population_tuple[:num_elite]
