@@ -25,7 +25,7 @@ sys.path.insert(0, filepath)
 
 from planner import Planner
 
-visualization = True
+visualization = False
 
 class tuning_variables:
     #the time in minutes it takes for a robot to move from one grid space to another
@@ -381,157 +381,164 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
                     
                     
                 else:
-                    #FOR TESTING
-                    # print("Debug print states")
-                    
-                    #there are still unprintable chunks
-                    #identify stuck robots
-                    stuck_robots = []
-                    for robot in range(0,len(robot_states)):
-                        if robot_states[robot] == 0:
-                            position = copy.deepcopy(robot_positions[robot])
-                            #make sure robot is actually stuck
-                            if np.any(np.all(np.array(position)==np.array(chunk_positions), axis = 1)) or np.any(np.all(np.array(position)==np.array(obstacles), axis = 1)):
-                                stuck_robots.append(robot)
-                            
-                    #run path planning for stuck robots
-                    if stuck_robots != []:
-                        #find the direction of the last chunk printed
-                        dir_last_chunk = []
-                        for i in range(0,len(stuck_robots)):
-                            dir_last_chunk.append(print_direction[robot_last_chunk_printed[stuck_robots[i]]])
-                        
-                        #find suitable place to move the robot to
-                        robot_goal_positions = []
-                        new_robot_starting_positions = []
-                        for count, robot in enumerate(stuck_robots):
-                            position = copy.deepcopy(robot_positions[robot])
-                            while np.any(np.all(np.array(position)==np.array(chunk_positions), axis = 1)) or np.any(np.all(np.array(position)==np.array(obstacles), axis = 1)):
-                                if dir_last_chunk[count] == 0:
-                                    position[1] += 2
-                                elif dir_last_chunk[count] == 1:
-                                    position[0] += 2
-                                elif dir_last_chunk[count] == 2:
-                                    position[1] -= 2
-                                elif dir_last_chunk[count] == 3:
-                                       position[0] -= 2
-                            
-                            robot_goal_positions.append(position)
-                            new_robot_starting_positions.append(robot_positions[robot])
-                            
-                        #calculate robot path and path time
-                        #make floor for this configuration
-                        grid_size_multiplier = floor_maker.make_floor(floor_size[0], floor_size[1], new_robot_starting_positions, robot_goal_positions, obstacles)
-                    
-                        # Load Scenario present in floor
-                        (GRID_SIZE, ROBOT_RADIUS, RECT_OBSTACLES, START, GOAL) = load_scenario("AMBOTS_floor.yaml")
-                        
-                        #Create correct format for static_obstacles
-                        static_obstacles = vertices_to_obsts(RECT_OBSTACLES)
-                        
-                        #call cbs-mapf
-                        planner_object = Planner(GRID_SIZE, ROBOT_RADIUS, static_obstacles)
-                        paths = planner_object.plan(START, GOAL, debug=False)
-                        
-                        #calculate path length and update robot positions and schedules
-                        (robot_path_lengths,robot_schedules,robot_positions,robot_last_chunk_printed) = path_analyzer.analyze_paths(paths, robot_positions, robot_goal_positions, printing_chunks, moving_robots, robot_schedules, robot_last_chunk_printed)
-                        
-                        #calculate movement time for each robot
-                        robot_move_time = ((robot_path_lengths))*tuning_variables.robot_speed
-                        
-                        #visualize each step
-                        if visualization == True:
-                            visualizer.visualizer()
-                        
+                    try:
                         #FOR TESTING
-                        # print("Robot Move Time " + str(robot_move_time))
+                        # print("Debug print states")
                         
-                        #add movement time to current action queue
-                        time_current_action += robot_move_time
-                        
-                        #calculate global elapsed time based on shortest next action time
-                        elapsed_time += (min(time_current_action))
-                        time_current_action -= (min(time_current_action))
-                        
-                        #set robot states of finished robots back to waiting
-                        robots_finished = []
-                        for i in range(0,len(robot_states)):
-                            if time_current_action[i] == 0:
-                                robot_states[i] = 0
-                                robots_finished.append(i)
-                            else:
-                                robot_states[i] = 1
-                        
-                        #set new robot starting positions and set working robots as obstacles
-                        robot_starting_positions = []
-                        robot_obstacles = []
-                        for i in range(0,len(robot_states)):
-                            if robot_states[i] == 0:
-                                robot_starting_positions.append(robot_positions[i])
-                            else:
-                                robot_obstacles.append(robot_positions[i])
+                        #there are still unprintable chunks
+                        #identify stuck robots
+                        stuck_robots = []
+                        for robot in range(0,len(robot_states)):
+                            if robot_states[robot] == 0:
+                                position = copy.deepcopy(robot_positions[robot])
+                                #make sure robot is actually stuck
+                                if np.any(np.all(np.array(position)==np.array(chunk_positions), axis = 1)) or np.any(np.all(np.array(position)==np.array(obstacles), axis = 1)):
+                                    stuck_robots.append(robot)
                                 
-                        obstacles = chunk_obstacles+robot_obstacles
-                        
-                    else:
-                        #elapse time to finish a print if no robot stuck
-                        #calculate global elapsed time based on second smallest
-                        time_no_zero = copy.deepcopy(time_current_action)
-                        for time_var in range(0, len(time_no_zero)):
-                            if time_no_zero[time_var] == 0:
-                                time_no_zero[time_var] = max(time_no_zero)
-                    
-                        time_skip = min(time_no_zero)
-                    
-                        elapsed_time += (min(time_no_zero))
-                        time_current_action -= (time_skip)
+                        #run path planning for stuck robots
+                        if stuck_robots != []:
+                            #find the direction of the last chunk printed
+                            dir_last_chunk = []
+                            for i in range(0,len(stuck_robots)):
+                                dir_last_chunk.append(print_direction[robot_last_chunk_printed[stuck_robots[i]]])
                             
-                        # print("Elapsed Time: " + str(elapsed_time))
-                        # print("Time Current Action: " +str(time_current_action))
-                        
-                        #set robot states of finished robots back to waiting
-                        num_chunks_printed_iteration = 0
-                        robots_finished = []
-                        for i in range(0,len(robot_states)):
-                            if time_current_action[i] == 0 and robot_states[i] == 1:
-                                robot_states[i] = 0
-                                num_chunks_printed_iteration += 1
-                                robots_finished.append(i)
-                            elif robot_states[i] == 2:
-                                robot_states[i] = 0
-                        
-                        #mark the chunk that finished printing as printed
-                        printed_chunks = []
-                        for i in range(0,num_chunks_printed_iteration):
-                            printed_chunks.append(robot_schedules[robots_finished[i]][-1])
-                        
-                        #mark only printed chunks as printed
-                        for i in range(0,len(printed_chunks)):
-                            chunk_print_states[printed_chunks[i]] = 2
-                            
-                        #set all times less than 0 to zero
-                        for time in range(0, len(time_current_action)):
-                            if time_current_action[time] <0:
-                                time_current_action[time] = 0
-                        
-                        #mark all chunks in progress as obstacles
-                        for i in range(0,len(printing_chunks)):
-                            chunk_obstacles.append(chunk_positions[printing_chunks[i]])
-                            
-                        #remove dependencies of printed chunks
-                        chunk_dependencies = remove_dependencies(chunk_dependencies, printed_chunks)
-                        # print(chunk_configuration.chunk_dependencies)
-                        
-                        #set new robot starting positions and set working robots as obstacles
-                        robot_starting_positions = []
-                        robot_obstacles = []
-                        for i in range(0,len(robot_states)):
-                            if robot_states[i] == 0:
-                                robot_starting_positions.append(robot_positions[i])
-                            else:
-                                robot_obstacles.append(robot_positions[i])
+                            #find suitable place to move the robot to
+                            robot_goal_positions = []
+                            new_robot_starting_positions = []
+                            for count, robot in enumerate(stuck_robots):
+                                position = copy.deepcopy(robot_positions[robot])
+                                while np.any(np.all(np.array(position)==np.array(chunk_positions), axis = 1)) or np.any(np.all(np.array(position)==np.array(obstacles), axis = 1)):
+                                    if dir_last_chunk[count] == 0:
+                                        position[1] += 2
+                                    elif dir_last_chunk[count] == 1:
+                                        position[0] += 2
+                                    elif dir_last_chunk[count] == 2:
+                                        position[1] -= 2
+                                    elif dir_last_chunk[count] == 3:
+                                           position[0] -= 2
                                 
-                        obstacles = chunk_obstacles+robot_obstacles
+                                robot_goal_positions.append(position)
+                                new_robot_starting_positions.append(robot_positions[robot])
+                                
+                            #calculate robot path and path time
+                            #make floor for this configuration
+                            grid_size_multiplier = floor_maker.make_floor(floor_size[0], floor_size[1], new_robot_starting_positions, robot_goal_positions, obstacles)
+                        
+                            # Load Scenario present in floor
+                            (GRID_SIZE, ROBOT_RADIUS, RECT_OBSTACLES, START, GOAL) = load_scenario("AMBOTS_floor.yaml")
+                            
+                            #Create correct format for static_obstacles
+                            static_obstacles = vertices_to_obsts(RECT_OBSTACLES)
+                            
+                            #call cbs-mapf
+                            planner_object = Planner(GRID_SIZE, ROBOT_RADIUS, static_obstacles)
+                            paths = planner_object.plan(START, GOAL, debug=False)
+                            
+                            #calculate path length and update robot positions and schedules
+                            (robot_path_lengths,robot_schedules,robot_positions,robot_last_chunk_printed) = path_analyzer.analyze_paths(paths, robot_positions, robot_goal_positions, printing_chunks, moving_robots, robot_schedules, robot_last_chunk_printed)
+                            
+                            #calculate movement time for each robot
+                            robot_move_time = ((robot_path_lengths))*tuning_variables.robot_speed
+                            
+                            #visualize each step
+                            if visualization == True:
+                                visualizer.visualizer()
+                            
+                            #FOR TESTING
+                            # print("Robot Move Time " + str(robot_move_time))
+                            
+                            #add movement time to current action queue
+                            time_current_action += robot_move_time
+                            
+                            #calculate global elapsed time based on shortest next action time
+                            elapsed_time += (min(time_current_action))
+                            time_current_action -= (min(time_current_action))
+                            
+                            #set robot states of finished robots back to waiting
+                            robots_finished = []
+                            for i in range(0,len(robot_states)):
+                                if time_current_action[i] == 0:
+                                    robot_states[i] = 0
+                                    robots_finished.append(i)
+                                else:
+                                    robot_states[i] = 1
+                            
+                            #set new robot starting positions and set working robots as obstacles
+                            robot_starting_positions = []
+                            robot_obstacles = []
+                            for i in range(0,len(robot_states)):
+                                if robot_states[i] == 0:
+                                    robot_starting_positions.append(robot_positions[i])
+                                else:
+                                    robot_obstacles.append(robot_positions[i])
+                                    
+                            obstacles = chunk_obstacles+robot_obstacles
+                            
+                        else:
+                            #elapse time to finish a print if no robot stuck
+                            #calculate global elapsed time based on second smallest
+                            time_no_zero = copy.deepcopy(time_current_action)
+                            for time_var in range(0, len(time_no_zero)):
+                                if time_no_zero[time_var] == 0:
+                                    time_no_zero[time_var] = max(time_no_zero)
+                        
+                            time_skip = min(time_no_zero)
+                        
+                            elapsed_time += (min(time_no_zero))
+                            time_current_action -= (time_skip)
+                                
+                            # print("Elapsed Time: " + str(elapsed_time))
+                            # print("Time Current Action: " +str(time_current_action))
+                            
+                            #set robot states of finished robots back to waiting
+                            num_chunks_printed_iteration = 0
+                            robots_finished = []
+                            for i in range(0,len(robot_states)):
+                                if time_current_action[i] == 0 and robot_states[i] == 1:
+                                    robot_states[i] = 0
+                                    num_chunks_printed_iteration += 1
+                                    robots_finished.append(i)
+                                elif robot_states[i] == 2:
+                                    robot_states[i] = 0
+                            
+                            #mark the chunk that finished printing as printed
+                            printed_chunks = []
+                            for i in range(0,num_chunks_printed_iteration):
+                                printed_chunks.append(robot_schedules[robots_finished[i]][-1])
+                            
+                            #mark only printed chunks as printed
+                            for i in range(0,len(printed_chunks)):
+                                chunk_print_states[printed_chunks[i]] = 2
+                                
+                            #set all times less than 0 to zero
+                            for time in range(0, len(time_current_action)):
+                                if time_current_action[time] <0:
+                                    time_current_action[time] = 0
+                            
+                            #mark all chunks in progress as obstacles
+                            for i in range(0,len(printing_chunks)):
+                                chunk_obstacles.append(chunk_positions[printing_chunks[i]])
+                                
+                            #remove dependencies of printed chunks
+                            chunk_dependencies = remove_dependencies(chunk_dependencies, printed_chunks)
+                            # print(chunk_configuration.chunk_dependencies)
+                            
+                            #set new robot starting positions and set working robots as obstacles
+                            robot_starting_positions = []
+                            robot_obstacles = []
+                            for i in range(0,len(robot_states)):
+                                if robot_states[i] == 0:
+                                    robot_starting_positions.append(robot_positions[i])
+                                else:
+                                    robot_obstacles.append(robot_positions[i])
+                                    
+                            obstacles = chunk_obstacles+robot_obstacles
+                            
+                    except ValueError:
+                         # print("Path Error")
+                         path_error = True
+                         chunk_print_states = [2]
+                         elapsed_time = 1000   
                         
                     
         else:

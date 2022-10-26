@@ -16,25 +16,26 @@ CHUNKS IN EACH ROW AND COLUMN
 ## inputs
 #four equal jobs of 6 chunks
 
-# chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
-#                       [0],[1,8],[2],[3,10],[4],[5,12],[6],[7,14],\
-#                       [8],[9,16],[10],[11,18],[12],[13,20],[14],[15,22]]
-# chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
-# chunk_print_time = [89., 82., 89., 84., 85., 80., 83., 87., 86., 81., 82., 87., 84., 64., 67., 78., \
-#         84., 94., 87., 49., 86., 89., 86., 83.]
-# robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
-# floor_size = [8,6]
-
-#four equal jobs of 6 chunks rotated 90 degrees
-chunk_dependencies = [[],[0, 2],[],[],[3, 5],[],[],[6, 8], [],[],[9, 11],[],\
-                      [0],[1,12,14],[2],[3],[4,15,17],[5],[6],[7,18,20],[8],[9],[10,21,23],[11]]
-    
-chunk_job = [[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3],[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3]]
-
-chunk_print_time = [89., 82., 89., 84., 85., 80., 83., 87., 86., 81., 82., 87., 84., 64., 67., 78., \
-        84., 94., 87., 49., 86., 89., 86., 83.]
+chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
+                      [0],[1,8],[2],[3,10],[4],[5,12],[6],[7,14],\
+                      [8],[9,16],[10],[11,18],[12],[13,20],[14],[15,22]]
+chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
+chunk_print_time = [2253., 1899., 2253., 1899., 2253., 1899., 2253., 1899.,\
+                    2929., 2490., 2929., 2490., 2929., 2490., 2929., 2490.,  \
+                    1429., 1236., 1429., 1236., 1429., 1236., 1429., 1236.]
 robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
 floor_size = [8,6]
+
+# #four equal jobs of 6 chunks rotated 90 degrees
+# chunk_dependencies = [[],[0, 2],[],[],[3, 5],[],[],[6, 8], [],[],[9, 11],[],\
+#                       [0],[1,12,14],[2],[3],[4,15,17],[5],[6],[7,18,20],[8],[9],[10,21,23],[11]]
+    
+# chunk_job = [[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3],[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3]]
+
+# chunk_print_time = [2253., 2859., 1552., 2253., 2859., 1552., 2253., 2859., 1552., 2253., 2859., 1552., \
+#         1894, 2598, 1194, 1894, 2598, 1194, 1894, 2598, 1194, 1894, 2598, 1194]
+# robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
+# floor_size = [8,6]
 
 def find_initial_chunks(number_jobs, chunk_dependencies, chunk_job):
     #identify initial chunks
@@ -268,11 +269,11 @@ if __name__ == '__main__':
     num_pop = 10
     percent_mutation = .5
     num_generations = 100
-    percent_carryover = .2
+    percent_elite = .2
     percent_crossover = .6
     
     """
-    The GA is set up in a way where the best percent carryover of the population is carried
+    The GA is set up in a way where the best percent elite of the population is carried
     to the next generation. Then the next percent crossover of the new population is created 
     by crossover. These also have a chance of mutation and can be made up of non-unique parents
     Finally, the remaining members are randomly generated
@@ -325,13 +326,13 @@ if __name__ == '__main__':
     
     #genetic algorithm
     #find best results for selection and carry those over to new population
-    num_carryover = int(np.round(num_pop*percent_carryover))
+    num_elite = int(np.round(num_pop*percent_elite))
     num_crossover = int(np.round(num_pop*percent_crossover))
-    num_parents = num_carryover+num_crossover
-    num_new_random = num_pop-num_carryover-num_crossover
+    num_parents = num_elite+num_crossover
+    num_new_random = num_pop-num_elite-num_crossover
     
     for generation in range(1,num_generations+1):
-        new_population = sorted_population_tuple[:num_carryover]
+        new_population = sorted_population_tuple[:num_elite]
     
         #create remaining from these
         probabilites = parent_probabilities(num_parents, print_time_pop)
@@ -401,7 +402,7 @@ if __name__ == '__main__':
     
             #add to new population once validity is confirmed
             new_population.append(iteration_tuple)
-            print_time_pop[num_carryover+individual] = total_print_time
+            print_time_pop[num_elite+individual] = total_print_time
         
         for individual in range(0,int(num_new_random)):
             (total_print_time, job_starting_posiitons, job_directions) = create_random_configuration(floor_size, chunk_dependencies, chunk_job, robot_starting_positions, chunk_print_time)
@@ -411,7 +412,7 @@ if __name__ == '__main__':
             #evaluate results    
             iteration_tuple = (job_starting_posiitons, job_directions, total_print_time)
             new_population.append(iteration_tuple)
-            print_time_pop[num_carryover+num_crossover+individual] = total_print_time
+            print_time_pop[num_elite+num_crossover+individual] = total_print_time
         
         print_time_pop.sort()
         new_population = sorted(new_population, key = lambda individual: individual[2])
