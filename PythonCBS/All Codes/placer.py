@@ -306,8 +306,8 @@ def convergence_test(print_time_pop, num_pop, percent_random):
 if __name__ == '__main__':
     #GA parameters
     num_pop = 20
-    chance_mutation = .05
-    chance_crossover = .4
+    chance_mutation = .2
+    chance_crossover = .2
     # num_generations = 100
     percent_elite = .2
     percent_random = .2 #percent of new randomly generated populateion
