@@ -6,22 +6,14 @@ phase) and call the floor maker and cbs algorithm at each step of the process
 """
 import numpy as np
 import floor_maker
-# import placement_visualizer
-# import visualizer
+import placement_visualizer
+import visualizer
 import yaml
 import math
 # import time
 import path_analyzer
 import copy
-import os
-import sys
 
-# current_path = os.getcwd()
-# (PythonCBS, visualization_path) = os.path.split(current_path)
-# (Placement, PythonCBS) = os.path.split(PythonCBS)
-# filepath = os.path.join(Placement, 'PythonCBS\cbs_mapf')
-
-# sys.path.insert(0, filepath)
 
 from planner import Planner
 
@@ -34,7 +26,7 @@ class tuning_variables:
 
 def chunk_print_direction(job_directions, chunk_job):
     chunk_number = len(chunk_job)
-    print_direction = np.zeros(chunk_number)
+    print_direction = np.zeros(chunk_number,int)
     for i in range(0,chunk_number):
         print_direction[i] = job_directions[chunk_job[i][0]]
     return(print_direction)
@@ -283,9 +275,9 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
                     #calculate movement time for each robot
                     robot_move_time = ((robot_path_lengths))*tuning_variables.robot_speed
                     
-                    # #visualize each step
-                    # if visualization == True:
-                    #     visualizer.visualizer()
+                    #visualize each step
+                    if visualization == True:
+                        visualizer.visualizer()
                     
                     #FOR TESTING
                     # print("Robot Move Time " + str(robot_move_time))
@@ -440,9 +432,9 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
                             #calculate movement time for each robot
                             robot_move_time = ((robot_path_lengths))*tuning_variables.robot_speed
                             
-                            # #visualize each step
-                            # if visualization == True:
-                            #     visualizer.visualizer()
+                            #visualize each step
+                            if visualization == True:
+                                visualizer.visualizer()
                             
                             #FOR TESTING
                             # print("Robot Move Time " + str(robot_move_time))
@@ -605,29 +597,46 @@ if __name__ == '__main__':
     # chunk_positions = [[10, 6], [9, 6], [13, 0], [13, 1], [4, 6], [4, 7], [5, 0], [6, 0], [10, 5], [9, 5], [12, 0], [12, 1], [3, 6], [3, 7], [5, 1], [6, 1], [10, 4], [9, 4], [11, 0], [11, 1], [2, 6], [2, 7], [5, 2], [6, 2]]
     # job_directions = [0, 3, 3, 2] 
     
-    #rotated tall box
-    chunk_dependencies = [[],[0, 2],[],[],[3, 5],[],[],[6, 8], [],[],[9, 11],[],\
-                          [0],[1,12,14],[2],[3],[4,15,17],[5],[6],[7,18,20],[8],[9],[10,21,23],[11]]
+    # #rotated tall box
+    # chunk_dependencies = [[],[0, 2],[],[],[3, 5],[],[],[6, 8], [],[],[9, 11],[],\
+    #                       [0],[1,12,14],[2],[3],[4,15,17],[5],[6],[7,18,20],[8],[9],[10,21,23],[11]]
         
-    chunk_job = [[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3],[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3]]
-    job_directions = [2, 1, 3, 1]
-    chunk_positions = [[2, 9], [3, 9], [4, 9], [8, 9], [8, 8], [8, 7], [6, 2], [6, 3], [6, 4], [10, 5], [10, 4], [10, 3], [2, 10], [3, 10], [4, 10], [9, 9], [9, 8], [9, 7], [5, 2], [5, 3], [5, 4], [11, 5], [11, 4], [11, 3]]
+    # chunk_job = [[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3],[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3]]
+    # job_directions = [2, 1, 3, 1]
+    # chunk_positions = [[2, 9], [3, 9], [4, 9], [8, 9], [8, 8], [8, 7], [6, 2], [6, 3], [6, 4], [10, 5], [10, 4], [10, 3], [2, 10], [3, 10], [4, 10], [9, 9], [9, 8], [9, 7], [5, 2], [5, 3], [5, 4], [11, 5], [11, 4], [11, 3]]
     
-    chunk_print_time = [89., 82., 89., 84., 85., 80., 83., 87., 86., 81., 82., 87., 84., 64., 67., 78., \
-            84., 94., 87., 49., 86., 89., 86., 83.]
-    robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
+    # chunk_print_time = [89., 82., 89., 84., 85., 80., 83., 87., 86., 81., 82., 87., 84., 64., 67., 78., \
+    #         84., 94., 87., 49., 86., 89., 86., 83.]
+    # robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
+    # floor_size = [8,6]
+    
+    #Pyramid
+    chunk_dependencies = [[],[0,2],[],[],[3,5],[],[],[6],[], \
+                          [0],[1,7,11],[2],[3],[4,12,14],[5],[6],[7,15],[8], \
+                          [9],[10,18,20],[11],[12],[13,21,23],[14],[15],[16,24], \
+                          [18],[19,26,28],[20],[21],[22,29,31],[23], \
+                          [26],[27,32,34],[28]]
+    chunk_job = [[0],[0],[0],[1],[1],[1],[2],[2],[3],\
+                 [0],[0],[0],[1],[1],[1],[2],[2],[3],\
+                 [0],[0],[0],[1],[1],[1],[2],[2], \
+                 [0],[0],[0],[1],[1],[1],\
+                 [0],[0],[0]]
+    job_directions = [2,2,2,2]
+    chunk_print_time = [1573.,2209.,1220.,1623.,2235.,375.,1573.,776.,977.,\
+                 2519.,3847.,2021.,2973.,4800.,372.,2450.,1251.,141.,\
+                 2070.,3163.,1662.,2198.,3638.,422.,166.,73., \
+                 2068.,3163.,1662.,1331.,2009.,286.,\
+                 929.,1274.,777.]
     floor_size = [8,6]
-    # chunk_positions = [[0,5],[1,5],[13,1],[14,1],[5,2],[5,1],[9,4],[9,5],\
-    #                       [0,4],[1,4],[13,2],[14,2],[6,2],[6,1],[10,4],[10,5],\
-    #                       [0,3],[1,3],[13,3],[14,3],[7,2],[7,1],[11,4],[11,5]]
+    robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
     
-    # chunk_positions = [[14, 2],[14, 3], [7, 1],[8, 1],[7, 8],[7, 9],[13, 7],[14, 7], \
-    #                    [13, 2],     [13, 3],     [7, 2],     [8, 2],     [6, 8],     [6, 9],     [13, 8],     [14, 8],\
-    #                     [12, 2],     [12, 3],     [7, 3],     [8, 3],     [5, 8],     [5, 9],     [13, 9],     [14, 9]]
+    chunk_positions = [[1,1],[2,1],[3,1],[6,1],[7,1],[8,1],[11,1],[12,1],[12,8],\
+                 [1,2],[2,2],[3,2],[6,2],[7,2],[8,2],[11,2],[12,2],[12,9],\
+                 [1,3],[2,3],[3,3],[6,3],[7,3],[8,3],[11,3],[12,3], \
+                 [1,4],[2,4],[3,4],[6,4],[7,4],[8,4],\
+                 [1,5],[2,5],[3,5],]
     
-       
-    
-    # placement_visualizer.placement_vis(floor_size, chunk_positions, chunk_job)
+    placement_visualizer.placement_vis(floor_size, chunk_positions, chunk_job)
         
     chunk_number = len(chunk_job)
     # job_directions = [0,2,1,1]   

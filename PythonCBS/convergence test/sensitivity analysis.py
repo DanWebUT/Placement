@@ -20,7 +20,7 @@ crossover_step = .1
 # num_generations = 100
 percent_elite = 0
 elite_step = .1
-percent_random = 0 #percent of new randomly generated populateion
+percent_random = .2 #percent of new randomly generated populateion
 random_step = .1
 
 header = ['Chance Mutation', 'Chance Crossover', 'Percent Elite', 'Percent Random','Number of Generations','Best Value']
@@ -28,9 +28,9 @@ header = ['Chance Mutation', 'Chance Crossover', 'Percent Elite', 'Percent Rando
 with open("Sensitivity Analysis Results.csv", "w") as file:
     writer = csv.writer(file)
     writer.writerow(header)
-    while percent_random <= 1:
+    while percent_random <= .4:
         percent_elite = 0
-        while percent_elite <= 1:
+        while percent_elite <= .3:
             chance_crossover = 0
             while chance_crossover <= 1:
                 chance_mutation = 0
