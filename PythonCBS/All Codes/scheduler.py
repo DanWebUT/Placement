@@ -636,7 +636,7 @@ if __name__ == '__main__':
                  [1,4],[2,4],[3,4],[6,4],[7,4],[8,4],\
                  [1,5],[2,5],[3,5],]
     
-    placement_visualizer.placement_vis(floor_size, chunk_positions, chunk_job)
+    # placement_visualizer.placement_vis(floor_size, chunk_positions, chunk_job)
         
     chunk_number = len(chunk_job)
     # job_directions = [0,2,1,1]   

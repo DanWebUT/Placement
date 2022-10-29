@@ -28,28 +28,28 @@ a floor size (in floor tiles)
 THIS PLACEMENT METHOD IS ONLY APPLICABLE FOR RECTANGULAR JOBS THAT HAVE THE SAME NUMBER OF
 CHUNKS IN EACH ROW AND COLUMN
 """
-## inputs
-#four equal jobs of 6 chunks
-# chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
-#                       [0],[1,8],[2],[3,10],[4],[5,12],[6],[7,14],\
-#                       [8],[9,16],[10],[11,18],[12],[13,20],[14],[15,22]]
-# chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
-# chunk_print_time = [2253., 1899., 2253., 1899., 2253., 1899., 2253., 1899.,\
-#                     2929., 2490., 2929., 2490., 2929., 2490., 2929., 2490.,  \
-#                     1429., 1236., 1429., 1236., 1429., 1236., 1429., 1236.]
-# robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
-# floor_size = [8,6]
-
-# #four equal jobs of 6 chunks rotated 90 degrees
-chunk_dependencies = [[],[0, 2],[],[],[3, 5],[],[],[6, 8], [],[],[9, 11],[],\
-                      [0],[1,12,14],[2],[3],[4,15,17],[5],[6],[7,18,20],[8],[9],[10,21,23],[11]]
-    
-chunk_job = [[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3],[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3]]
-
-chunk_print_time = [2253., 2859., 1552., 2253., 2859., 1552., 2253., 2859., 1552., 2253., 2859., 1552., \
-        1894, 2598, 1194, 1894, 2598, 1194, 1894, 2598, 1194, 1894, 2598, 1194]
+# # inputs
+# four equal jobs of 6 chunks
+chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
+                      [0],[1,8],[2],[3,10],[4],[5,12],[6],[7,14],\
+                      [8],[9,16],[10],[11,18],[12],[13,20],[14],[15,22]]
+chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
+chunk_print_time = [2253., 1899., 2253., 1899., 2253., 1899., 2253., 1899.,\
+                    2929., 2490., 2929., 2490., 2929., 2490., 2929., 2490.,  \
+                    1429., 1236., 1429., 1236., 1429., 1236., 1429., 1236.]
 robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
 floor_size = [8,6]
+
+# # #four equal jobs of 6 chunks rotated 90 degrees
+# chunk_dependencies = [[],[0, 2],[],[],[3, 5],[],[],[6, 8], [],[],[9, 11],[],\
+#                       [0],[1,12,14],[2],[3],[4,15,17],[5],[6],[7,18,20],[8],[9],[10,21,23],[11]]
+    
+# chunk_job = [[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3],[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3]]
+
+# chunk_print_time = [2253., 2859., 1552., 2253., 2859., 1552., 2253., 2859., 1552., 2253., 2859., 1552., \
+#         1894, 2598, 1194, 1894, 2598, 1194, 1894, 2598, 1194, 1894, 2598, 1194]
+# robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
+# floor_size = [8,6]
 
 def find_initial_chunks(number_jobs, chunk_dependencies, chunk_job):
     #identify initial chunks
@@ -213,7 +213,7 @@ def parent_probabilities(num_parents, print_time_pop):
     #set probabilites of each parent being selected
     parent_cost_list = print_time_pop[:num_parents]
     avg_cost = mean(parent_cost_list)
-    beta = 1
+    beta = 10
     parent_cost_list = array(parent_cost_list)/avg_cost
     probabilities = exp(-beta*array(parent_cost_list))
     return(probabilities)
@@ -279,7 +279,7 @@ def create_random_configuration(floor_size, chunk_dependencies, chunk_job, robot
     return(total_print_time, job_starting_posiitons, job_directions)
 
 def convergence_test(print_time_pop, num_pop, percent_random):
-    convergence_criteria = .05 #percentage for convergence
+    convergence_criteria = .001 #percentage for convergence
     # convergence_criteria = 5 #range for convergence in values
     
     num_pop_convergence = int(num_pop-num_pop*(percent_random))
@@ -306,11 +306,11 @@ def convergence_test(print_time_pop, num_pop, percent_random):
 if __name__ == '__main__':
     #GA parameters
     num_pop = 20
-    chance_mutation = .2
-    chance_crossover = .2
+    chance_mutation = .4
+    chance_crossover = .3
     # num_generations = 100
-    percent_elite = .2
-    percent_random = .2 #percent of new randomly generated populateion
+    percent_elite = .1
+    percent_random = .4 #percent of new randomly generated populateion
     
     """
     The GA is set up in a way where the best percent elite of the population is carried
@@ -320,7 +320,7 @@ if __name__ == '__main__':
     """
     #Write to a folder
     time_setting = int(round((time())/1000))
-    folder = "GA_Results/GA" + str(time_setting)
+    folder = "GA_Results/Tall_Box_Final" + str(time_setting)
 
     current_path = os.getcwd()
     filepath = os.path.join(current_path,folder)
@@ -368,19 +368,20 @@ if __name__ == '__main__':
     #find best results for selection and carry those over to new population
     num_elite = int(round(num_pop*percent_elite))
     num_crossover = int(round(num_pop-num_pop*(percent_elite+percent_random)))
-    num_parents = num_elite+num_crossover
+    # num_parents = num_elite
     num_new_random = int(num_pop*percent_random)
     
     
     convergence = convergence_test(print_time_pop, num_pop, 0)
+    new_population = sorted_population_tuple[:num_elite]
     
     generation = 1
     #setup convergence
-    while convergence == False:
-        new_population = sorted_population_tuple[:num_elite]
+    while convergence == False and generation <=100:
+        
     
         #create remaining from these
-        probabilites = parent_probabilities(num_parents, print_time_pop)
+        probabilites = parent_probabilities(num_pop, print_time_pop)
         for individual in range(0,int(num_crossover)):
             valid_positions = False
             
@@ -411,20 +412,21 @@ if __name__ == '__main__':
                     #generate random location
                     mutation_location = int(floor(rand()*len(child)))
                     
-                    #generate change within bounds of that number
-                    if (mutation_location)%3 == 0:
-                        #X coord mutation
-                        new_val = int(floor(rand()*floor_size[0]))
-                    elif (mutation_location+2)%3 == 0:
-                        #Y coord mutation
-                        new_val = int(floor(rand()*floor_size[1]))
+                    if rand() < .5:
+                        new_val = child[mutation_location] + 1
                     else:
-                        #direction mutation
-                        new_val = int(floor(rand()*4))
-                        
-                    child[mutation_location] = new_val
+                        new_val = child[mutation_location] - 1
+                    #generate change within bounds of that number
+                    if (mutation_location)%3 == 0 and (new_val >= (floor_size[0]*2) or new_val < 0):
+                        new_val = int(new_val%(floor_size[0]*2))
+                    elif (mutation_location+2)%3 == 0 and (new_val >= (floor_size[1]*2) or new_val < 0):
+                        new_val = int(new_val%(floor_size[1]*2))
+                    elif (mutation_location+1)%3 == 0 and (new_val >= 4 or new_val < 0):
+                        new_val = int(new_val%4)
                     
-                    #make sure direction is in range 0 to 3
+                    
+                    # print("Mutation at " + str(mutation_location) + " from " +str(child[mutation_location])+" to " +str(new_val))
+                    child[mutation_location] = new_val
                     
                     
                 #check validity 
@@ -441,7 +443,8 @@ if __name__ == '__main__':
             
             #if child does not form in 100 iterations, pick parent one to move to next generation
             if iteration_count >= 100:
-                iteration_tuple = sorted_population_tuple[p1_index]
+                parent_index = select_parent(probabilites)
+                iteration_tuple = sorted_population_tuple[parent_index]
                 
                 #FOR TESTING
                 # print("Iteration count exceeded, carry " + str(p1_index) + " to next generation")
@@ -472,7 +475,7 @@ if __name__ == '__main__':
         print_time_pop.sort()
         new_population = sorted(new_population, key = lambda individual: individual[2])
         
-        population_tuple = deepcopy(new_population)
+        sorted_population_tuple = deepcopy(new_population)
     
         #FOR TESTING
         print("Generation " +str(generation) +" population print time: \n" + str(print_time_pop))
