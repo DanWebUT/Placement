@@ -30,15 +30,15 @@ CHUNKS IN EACH ROW AND COLUMN
 """
 # # inputs
 # four equal jobs of 6 chunks
-chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
-                      [0],[1,8],[2],[3,10],[4],[5,12],[6],[7,14],\
-                      [8],[9,16],[10],[11,18],[12],[13,20],[14],[15,22]]
-chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
-chunk_print_time = [2253., 1899., 2253., 1899., 2253., 1899., 2253., 1899.,\
-                    2929., 2490., 2929., 2490., 2929., 2490., 2929., 2490.,  \
-                    1429., 1236., 1429., 1236., 1429., 1236., 1429., 1236.]
-robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
-floor_size = [8,6]
+# chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
+#                       [0],[1,8],[2],[3,10],[4],[5,12],[6],[7,14],\
+#                       [8],[9,16],[10],[11,18],[12],[13,20],[14],[15,22]]
+# chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
+# chunk_print_time = [2253., 1899., 2253., 1899., 2253., 1899., 2253., 1899.,\
+#                     2929., 2490., 2929., 2490., 2929., 2490., 2929., 2490.,  \
+#                     1429., 1236., 1429., 1236., 1429., 1236., 1429., 1236.]
+# robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
+# floor_size = [8,6]
 
 # # #four equal jobs of 6 chunks rotated 90 degrees
 # chunk_dependencies = [[],[0, 2],[],[],[3, 5],[],[],[6, 8], [],[],[9, 11],[],\
@@ -51,6 +51,31 @@ floor_size = [8,6]
 # robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
 # floor_size = [8,6]
 
+##Pyramid
+chunk_dependencies = [[],[0,2],[],[],[3,5],[],[],[6],[], \
+                      [0],[1,7,11],[2],[3],[4,12,14],[5],[6],[7,15],[8], \
+                      [9],[10,18,20],[11],[12],[13,21,23],[14],[15],[16,24], \
+                      [18],[19,26,28],[20],[21],[22,29,31],[23], \
+                      [26],[27,32,34],[28]]
+chunk_job = [[0],[0],[0],[1],[1],[1],[2],[2],[3],\
+             [0],[0],[0],[1],[1],[1],[2],[2],[3],\
+             [0],[0],[0],[1],[1],[1],[2],[2], \
+             [0],[0],[0],[1],[1],[1],\
+             [0],[0],[0]]
+job_directions = [2,2,2,2]
+chunk_print_time = [1573.,2209.,1220.,1623.,2235.,375.,1573.,776.,977.,\
+             2519.,3847.,2021.,2973.,4800.,372.,2450.,1251.,141.,\
+             2070.,3163.,1662.,2198.,3638.,422.,166.,73., \
+             2068.,3163.,1662.,1331.,2009.,286.,\
+             929.,1274.,777.]
+floor_size = [8,6]
+robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
+
+chunk_positions = [[1,1],[2,1],[3,1],[6,1],[7,1],[8,1],[11,1],[12,1],[12,8],\
+             [1,2],[2,2],[3,2],[6,2],[7,2],[8,2],[11,2],[12,2],[12,9],\
+             [1,3],[2,3],[3,3],[6,3],[7,3],[8,3],[11,3],[12,3], \
+             [1,4],[2,4],[3,4],[6,4],[7,4],[8,4],\
+             [1,5],[2,5],[3,5],]
 def find_initial_chunks(number_jobs, chunk_dependencies, chunk_job):
     #identify initial chunks
     initial_chunks = zeros(number_jobs,int) -1
@@ -279,7 +304,7 @@ def create_random_configuration(floor_size, chunk_dependencies, chunk_job, robot
     return(total_print_time, job_starting_posiitons, job_directions)
 
 def convergence_test(print_time_pop, num_pop, percent_random):
-    convergence_criteria = .001 #percentage for convergence
+    convergence_criteria = .00001 #percentage for convergence
     # convergence_criteria = 5 #range for convergence in values
     
     num_pop_convergence = int(num_pop-num_pop*(percent_random))
