@@ -16,7 +16,7 @@ from time import time
 from scheduler import chunk_print_direction
 from scheduler import schedule
 
-# import placement_visualizer
+import placement_visualizer
 import os
 
 
@@ -62,7 +62,7 @@ chunk_job = [[0],[0],[0],[1],[1],[1],[2],[2],[3],\
              [0],[0],[0],[1],[1],[1],[2],[2], \
              [0],[0],[0],[1],[1],[1],\
              [0],[0],[0]]
-job_directions = [2,2,2,2]
+
 chunk_print_time = [1573.,2209.,1220.,1623.,2235.,375.,1573.,776.,977.,\
              2519.,3847.,2021.,2973.,4800.,372.,2450.,1251.,141.,\
              2070.,3163.,1662.,2198.,3638.,422.,166.,73., \
@@ -71,11 +71,13 @@ chunk_print_time = [1573.,2209.,1220.,1623.,2235.,375.,1573.,776.,977.,\
 floor_size = [8,6]
 robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
 
-chunk_positions = [[1,1],[2,1],[3,1],[6,1],[7,1],[8,1],[11,1],[12,1],[12,8],\
-             [1,2],[2,2],[3,2],[6,2],[7,2],[8,2],[11,2],[12,2],[12,9],\
-             [1,3],[2,3],[3,3],[6,3],[7,3],[8,3],[11,3],[12,3], \
-             [1,4],[2,4],[3,4],[6,4],[7,4],[8,4],\
-             [1,5],[2,5],[3,5],]
+# job_directions = [2,2,2,2]
+# chunk_positions = [[1,1],[2,1],[3,1],[6,1],[7,1],[8,1],[11,1],[12,1],[12,8],\
+#              [1,2],[2,2],[3,2],[6,2],[7,2],[8,2],[11,2],[12,2],[12,9],\
+#              [1,3],[2,3],[3,3],[6,3],[7,3],[8,3],[11,3],[12,3], \
+#              [1,4],[2,4],[3,4],[6,4],[7,4],[8,4],\
+#              [1,5],[2,5],[3,5],]
+    
 def find_initial_chunks(number_jobs, chunk_dependencies, chunk_job):
     #identify initial chunks
     initial_chunks = zeros(number_jobs,int) -1
@@ -162,9 +164,12 @@ def place_chunks(job_starting_posiitons, print_direction, chunk_job, chunk_depen
         #find row width
         row_width = 0
         if last_indep ==  initial_chunks[job]:
-            #at most 2 wide
-            if len(chunk_dependencies[chunks_in_job[job][3]]) > 1:
-                row_width = 2
+            if len(chunks_in_job[job]) > 2:
+                #at most 2 wide
+                if len(chunk_dependencies[chunks_in_job[job][3]]) > 1:
+                    row_width = 2
+                else:
+                    row_width = 1
             else:
                 row_width = 1
         else:
@@ -345,7 +350,7 @@ if __name__ == '__main__':
     """
     #Write to a folder
     time_setting = int(round((time())/1000))
-    folder = "GA_Results/Tall_Box_Final" + str(time_setting)
+    folder = "GA_Results/Pyramid" + str(time_setting)
 
     current_path = os.getcwd()
     filepath = os.path.join(current_path,folder)
