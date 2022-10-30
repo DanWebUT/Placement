@@ -9,6 +9,7 @@ from numpy import zeros
 from numpy import max
 from numpy import unique
 from numpy.random import rand
+from numpy.linalg import norm
 
 from copy import deepcopy
 from time import time
@@ -220,6 +221,16 @@ def place_chunks(job_starting_posiitons, print_direction, chunk_job, chunk_depen
                 if chunk_position[0] < 0 or chunk_position[0] > floor_x_max or chunk_position[1] < 0 or chunk_position[1] > floor_y_max: 
                     valid_positions = False
     
+    
+    #make sure the jobs satisfy assembly order
+    distance_matrix = norm(job_starting_posiitons - job_starting_posiitons[:,None],axis =-1)
+    for job in range(1,len(robot_starting_positions)):
+        if distance_matrix[job][0] < distance_matrix[job-1][0]:
+            valid_positions = False
+            
+        #FOR TESTING
+        # print(valid_positions)
+    
     #restrict from robot starting positions
     for robot in range(0, len(robot_starting_positions)):
         restricted_positions.append([robot_starting_positions[robot][0],robot_starting_positions[robot][1]])
@@ -350,7 +361,7 @@ if __name__ == '__main__':
     """
     #Write to a folder
     time_setting = int(round((time())/1000))
-    folder = "GA_Results/Pyramid" + str(time_setting)
+    folder = "GA_Results/Pyramid_ordered" + str(time_setting)
 
     current_path = os.getcwd()
     filepath = os.path.join(current_path,folder)
