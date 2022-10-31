@@ -224,7 +224,7 @@ def place_chunks(job_starting_posiitons, print_direction, chunk_job, chunk_depen
     
     #make sure the jobs satisfy assembly order
     distance_matrix = norm(job_starting_posiitons - job_starting_posiitons[:,None],axis =-1)
-    for job in range(1,len(robot_starting_positions)):
+    for job in range(1,len(job_starting_posiitons)):
         if distance_matrix[job][0] < distance_matrix[job-1][0]:
             valid_positions = False
             
