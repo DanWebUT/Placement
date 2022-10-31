@@ -13,36 +13,36 @@ robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
 floor_size = [8,6]
 
 
-chance_mutation = 0
+chance_mutation = .4
 mutation_step = .1
-chance_crossover = 0
+chance_crossover = .3
 crossover_step = .1
 # num_generations = 100
 percent_elite = 0
 elite_step = .1
-percent_random = .2 #percent of new randomly generated populateion
+percent_random = 0 #percent of new randomly generated populateion
 random_step = .1
 
 header = ['Chance Mutation', 'Chance Crossover', 'Percent Elite', 'Percent Random','Number of Generations','Best Value']
 
-with open("Sensitivity Analysis Results.csv", "w") as file:
+with open("Sensitivity Analysis Percents.csv", "w") as file:
     writer = csv.writer(file)
     writer.writerow(header)
-    while percent_random <= .4:
+    while percent_random <= 1:
         percent_elite = 0
-        while percent_elite <= .3:
+        while percent_elite <= 1:
             chance_crossover = 0
-            while chance_crossover <= 1:
-                chance_mutation = 0
-                while chance_mutation <= 1:
-                    (generation, best_value) = placement_optimization(chance_mutation, chance_crossover, percent_elite, percent_random, chunk_dependencies, chunk_job, chunk_print_time, robot_starting_positions, floor_size)
-                    print("Generation: " + str(generation)+ ", Best Value: " + str(best_value))
+            # while chance_crossover <= 1:
+            #     chance_mutation = 0
+            #     while chance_mutation <= 1:
+            (generation, best_value) = placement_optimization(chance_mutation, chance_crossover, percent_elite, percent_random, chunk_dependencies, chunk_job, chunk_print_time, robot_starting_positions, floor_size)
+            print("Generation: " + str(generation)+ ", Best Value: " + str(best_value))
+            
+            data = [chance_mutation, chance_crossover, percent_elite, percent_random, generation,best_value]
+            writer.writerow(data)
                     
-                    data = [chance_mutation, chance_crossover, percent_elite, percent_random, generation,best_value]
-                    writer.writerow(data)
-                    
-                    chance_mutation += mutation_step
-                chance_crossover += crossover_step
+                #     chance_mutation += mutation_step
+                # chance_crossover += crossover_step
             percent_elite += elite_step
         percent_random += random_step
                     
