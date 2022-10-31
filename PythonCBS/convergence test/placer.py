@@ -14,6 +14,9 @@ from numpy.linalg import norm
 from copy import deepcopy
 from time import time
 
+from scheduler import chunk_print_direction
+from scheduler import schedule
+
 # import placement_visualizer
 import os
 
@@ -26,8 +29,8 @@ a floor size (in floor tiles)
 THIS PLACEMENT METHOD IS ONLY APPLICABLE FOR RECTANGULAR JOBS THAT HAVE THE SAME NUMBER OF
 CHUNKS IN EACH ROW AND COLUMN
 """
-## inputs
-#four equal jobs of 6 chunks
+# # inputs
+# # four equal jobs of 6 chunks
 # chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
 #                       [0],[1,8],[2],[3,10],[4],[5,12],[6],[7,14],\
 #                       [8],[9,16],[10],[11,18],[12],[13,20],[14],[15,22]]
@@ -49,6 +52,33 @@ chunk_print_time = [2253., 2859., 1552., 2253., 2859., 1552., 2253., 2859., 1552
 robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
 floor_size = [8,6]
 
+# ##Pyramid
+# chunk_dependencies = [[],[0,2],[],[],[3,5],[],[],[6],[], \
+#                       [0],[1,7,11],[2],[3],[4,12,14],[5],[6],[7,15],[8], \
+#                       [9],[10,18,20],[11],[12],[13,21,23],[14],[15],[16,24], \
+#                       [18],[19,26,28],[20],[21],[22,29,31],[23], \
+#                       [26],[27,32,34],[28]]
+# chunk_job = [[0],[0],[0],[1],[1],[1],[2],[2],[3],\
+#              [0],[0],[0],[1],[1],[1],[2],[2],[3],\
+#              [0],[0],[0],[1],[1],[1],[2],[2], \
+#              [0],[0],[0],[1],[1],[1],\
+#              [0],[0],[0]]
+
+# chunk_print_time = [1573.,2209.,1220.,1623.,2235.,375.,1573.,776.,977.,\
+#              2519.,3847.,2021.,2973.,4800.,372.,2450.,1251.,141.,\
+#              2070.,3163.,1662.,2198.,3638.,422.,166.,73., \
+#              2068.,3163.,1662.,1331.,2009.,286.,\
+#              929.,1274.,777.]
+# floor_size = [8,6]
+# robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
+
+# job_directions = [2,2,2,2]
+# chunk_positions = [[1,1],[2,1],[3,1],[6,1],[7,1],[8,1],[11,1],[12,1],[12,8],\
+#              [1,2],[2,2],[3,2],[6,2],[7,2],[8,2],[11,2],[12,2],[12,9],\
+#              [1,3],[2,3],[3,3],[6,3],[7,3],[8,3],[11,3],[12,3], \
+#              [1,4],[2,4],[3,4],[6,4],[7,4],[8,4],\
+#              [1,5],[2,5],[3,5],]
+    
 def find_initial_chunks(number_jobs, chunk_dependencies, chunk_job):
     #identify initial chunks
     initial_chunks = zeros(number_jobs,int) -1
@@ -135,9 +165,12 @@ def place_chunks(job_starting_posiitons, print_direction, chunk_job, chunk_depen
         #find row width
         row_width = 0
         if last_indep ==  initial_chunks[job]:
-            #at most 2 wide
-            if len(chunk_dependencies[chunks_in_job[job][3]]) > 1:
-                row_width = 2
+            if len(chunks_in_job[job]) > 2:
+                #at most 2 wide
+                if len(chunk_dependencies[chunks_in_job[job][3]]) > 1:
+                    row_width = 2
+                else:
+                    row_width = 1
             else:
                 row_width = 1
         else:
@@ -188,9 +221,19 @@ def place_chunks(job_starting_posiitons, print_direction, chunk_job, chunk_depen
                 if chunk_position[0] < 0 or chunk_position[0] > floor_x_max or chunk_position[1] < 0 or chunk_position[1] > floor_y_max: 
                     valid_positions = False
     
-    #restrict from robot starting positions
-    for robot in range(0, len(robot_starting_positions)):
-        restricted_positions.append([robot_starting_positions[robot][0],robot_starting_positions[robot][1]])
+    
+    #make sure the jobs satisfy assembly order
+    distance_matrix = norm(job_starting_posiitons - job_starting_posiitons[:,None],axis =-1)
+    for job in range(1,len(job_starting_posiitons)):
+        if distance_matrix[job][0] < distance_matrix[job-1][0]:
+            valid_positions = False
+            
+        #FOR TESTING
+        # print(valid_positions)
+    
+    # #restrict from robot starting positions
+    # for robot in range(0, len(robot_starting_positions)):
+    #     restricted_positions.append([robot_starting_positions[robot][0],robot_starting_positions[robot][1]])
     
     #check to make sure there is no overlap including with positions needed to print each job
     coordinates_set = unique(array(restricted_positions), axis = 0)
@@ -266,7 +309,8 @@ def create_random_configuration(floor_size, chunk_dependencies, chunk_job, robot
         number_attempts += 1
         job_directions = job_directions[0]
         if valid_positions == True:
-            total_print_time = evaluate_config(job_starting_posiitons)
+            print_direction = chunk_print_direction(job_directions, chunk_job)     
+            total_print_time = schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
     
     #For visualization
     # placement_visualizer.placement_vis(floor_size, chunk_positions, chunk_job)
@@ -274,7 +318,7 @@ def create_random_configuration(floor_size, chunk_dependencies, chunk_job, robot
     return(total_print_time, job_starting_posiitons, job_directions)
 
 def convergence_test(print_time_pop, num_pop, percent_random):
-    convergence_criteria = .001 #percentage for convergence
+    convergence_criteria = .00001 #percentage for convergence
     # convergence_criteria = 5 #range for convergence in values
     
     num_pop_convergence = int(num_pop-num_pop*(percent_random))
@@ -296,18 +340,16 @@ def convergence_test(print_time_pop, num_pop, percent_random):
     #         convergence = False
     #         return(convergence)
 
-    return(convergence)   
-
-def evaluate_config(initial_chunks):
-    total_print_time = sum(sum(norm(initial_chunks - initial_chunks[:,None],axis =-1)))
-    
-    
-    return(total_print_time)
-    
+    return(convergence)    
 
 def placement_optimization(chance_mutation, chance_crossover, percent_elite, percent_random, chunk_dependencies, chunk_job, chunk_print_time, robot_starting_positions, floor_size):
     #GA parameters
     num_pop = 20
+    # chance_mutation = .4
+    # chance_crossover = .3
+    # # num_generations = 100
+    # percent_elite = .1
+    # percent_random = .4 #percent of new randomly generated populateion
     
     """
     The GA is set up in a way where the best percent elite of the population is carried
@@ -315,18 +357,6 @@ def placement_optimization(chance_mutation, chance_crossover, percent_elite, per
     by crossover. These also have a chance of mutation and can be made up of non-unique parents
     Finally, the remaining members are randomly generated
     """
-    #Write to a folder
-    time_setting = int(round((time())/1000))
-    folder = "GA_Results/GA" + str(time_setting)
-
-    current_path = os.getcwd()
-    filepath = os.path.join(current_path,folder)
-    os.makedirs(filepath, exist_ok=True)
-
-    filename = "Print_Times"
-    config_filename = "Configurations"
-    complete_filename = os.path.join(filepath, filename +".txt")
-    config_complete_filename = os.path.join(filepath, config_filename +".txt")
     
     #find valid configurations
     print_time_pop = [[]]*num_pop
@@ -352,30 +382,22 @@ def placement_optimization(chance_mutation, chance_crossover, percent_elite, per
     sorted_population_tuple = sorted(population_tuple, key = lambda individual: individual[2])
     
     print_time_pop.sort() 
-
-    # print("Original population print time: \n" + str(print_time_pop))
-    #create empty file
-    # with open(complete_filename, "w") as file:
-    #     file.write("Original population print time: \n" + str(print_time_pop) + "\n")
-    
-    # with open(config_complete_filename, "w") as file:
-    #     file.write("Original population configuration: \n" + str(sorted_population_tuple) + "\n")
     
     #genetic algorithm
     #find best results for selection and carry those over to new population
     num_elite = int(round(num_pop*percent_elite))
     num_crossover = int(round(num_pop-num_pop*(percent_elite+percent_random)))
-    num_parents = num_elite
+    # num_parents = num_elite
     num_new_random = int(num_pop*percent_random)
     
     
     convergence = convergence_test(print_time_pop, num_pop, 0)
-    new_population = sorted_population_tuple[:num_elite]
+    
     
     generation = 1
     #setup convergence
-    while convergence == False and generation <= 1000:
-        
+    while convergence == False and generation <=1000:
+        new_population = sorted_population_tuple[:num_elite]
     
         #create remaining from these
         probabilites = parent_probabilities(num_pop, print_time_pop)
@@ -397,11 +419,9 @@ def placement_optimization(chance_mutation, chance_crossover, percent_elite, per
                     p2_genes = list_genes(sorted_population_tuple[p2_index])
                     
                     child = crossover(p1_genes, p2_genes)
-                    
-                    # print("Crossover with parents: " + str(p1_index)+ " and " + str(p2_index))
+                
                 else:
                     child_index = select_parent(probabilites)
-                    # print("No Crossover, parent: " + str(child_index))
                     child = list_genes(sorted_population_tuple[child_index])
                 
                 #mutation
@@ -427,15 +447,14 @@ def placement_optimization(chance_mutation, chance_crossover, percent_elite, per
                     # print("Mutation at " + str(mutation_location) + " from " +str(child[mutation_location])+" to " +str(new_val))
                     child[mutation_location] = new_val
                     
-                    #make sure direction is in range 0 to 3
-                    
                     
                 #check validity 
                 chunk_dep_iteration = deepcopy(chunk_dependencies)
                 (child_job_starting_positions, child_job_directions) = gene_to_tuple(child)
                 (chunk_positions, valid_positions) = place_chunks(child_job_starting_positions, [child_job_directions], chunk_job, chunk_dep_iteration, floor_size, robot_starting_positions)
                 if valid_positions == True:
-                    total_print_time = evaluate_config(child_job_starting_positions)
+                    print_direction = chunk_print_direction(child_job_directions, chunk_job)     
+                    total_print_time = schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
                 
                 iteration_count += 1
             
@@ -474,35 +493,15 @@ def placement_optimization(chance_mutation, chance_crossover, percent_elite, per
         new_population = sorted(new_population, key = lambda individual: individual[2])
         
         sorted_population_tuple = deepcopy(new_population)
-        
-        # #FOR TESTING
-        # print("Generation " +str(generation) +" population print time: \n" + str(print_time_pop))
-        
-        # #Write print and configuration results
-        # with open(complete_filename, "a+") as file:
-        #    file.write("Generation " +str(generation) +" population print time: \n" + str(print_time_pop) + "\n")
-           
-        # with open(config_complete_filename, "a+") as file:
-        #     file.write("Generation " +str(generation) +" population configuration: \n" + str(new_population) + "\n")
-            
+    
+    
         generation += 1
         
         convergence = convergence_test(print_time_pop, num_pop, percent_random)
     
-    # if convergence == True:
-        # print("Converged in " + str(generation) + " generations!")
-        # return(generation, print_time_pop[0])
-        # with open(config_complete_filename, "a+") as file:
-        #     file.write("Converged in " + str(generation) + " generations!")
-    return(generation, print_time_pop[0])
-        
+    best_value = print_time_pop[0]
+    return(generation-1,best_value)
     
-if __name__ == '__main__':
-    chance_mutation = .7
-    chance_crossover = .4
-    # num_generations = 100
-    percent_elite = .2
-    percent_random = .4 #percent of new randomly generated populateion
-    (generation, best_value) = placement_optimization(chance_mutation, chance_crossover, percent_elite, percent_random, chunk_dependencies, chunk_job, chunk_print_time, robot_starting_positions, floor_size)
-
-
+    # if convergence == True:
+    #     print("Converged in " + str(generation-1) + " generations!")
+    

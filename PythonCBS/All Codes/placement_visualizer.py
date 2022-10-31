@@ -15,6 +15,7 @@ def placement_vis(floor_size, chunk_positions, chunk_job):
     disp_mult = 100
     size_multiplier = 75
     start_offest = 100   
+    colors = [[0,0,0],[0,0,255],[0,255,0],[255,0,0]]
     
     #create window
     cv2.namedWindow('placement', cv2.WINDOW_NORMAL)
@@ -58,8 +59,8 @@ def placement_vis(floor_size, chunk_positions, chunk_job):
         max_y = max_y_grid*size_multiplier + start_offest
         
         #draw job
-        random_color = np.round(np.random.rand(1,3)*255)
-        cv2.rectangle(canvas, (min_x, min_y), (max_x, max_y), (int(random_color[0][0]), int(random_color[0][1]), int(random_color[0][2])), thickness=-1)
+        # random_color = np.round(np.random.rand(1,3)*255)
+        cv2.rectangle(canvas, (min_x, min_y), (max_x, max_y), (int(colors[i][0]), int(colors[i][1]), int(colors[i][2])), thickness=-1)
     
     
         
@@ -72,9 +73,11 @@ def placement_vis(floor_size, chunk_positions, chunk_job):
 # #TEST configuration 
 # floor_size = [8,6]
 
-# chunk_positions = [[0,5],[1,5],[13,1],[14,1],[5,3],[5,2],[9,4],[9,5],\
-#                     [0,4],[1,4],[13,2],[14,2],[6,3],[6,2],[10,4],[10,5],\
-#                     [0,3],[1,3],[13,3],[14,3],[7,3],[7,2],[11,4],[11,5],]
+# # chunk_positions = [[0,5],[1,5],[13,1],[14,1],[5,3],[5,2],[9,4],[9,5],\
+# #                     [0,4],[1,4],[13,2],[14,2],[6,3],[6,2],[10,4],[10,5],\
+# #                     [0,3],[1,3],[13,3],[14,3],[7,3],[7,2],[11,4],[11,5],]
+
+# chunk_positions = [[6, 3], [5, 3], [6, 5], [7, 5], [12, 0], [13, 0], [2, 4], [1, 4], [6, 2], [5, 2], [6, 6], [7, 6], [12, 1], [13, 1], [2, 3], [1, 3], [6, 1], [5, 1], [6, 7], [7, 7], [12, 2], [13, 2], [2, 2], [1, 2]]
 
 # chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
 

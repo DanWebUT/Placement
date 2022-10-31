@@ -1,0 +1,5 @@
+Chance Mutation,Chance Crossover,Percent Elite,Percent Random,Number of Generations,Best Value
+0.4,0,0,0,100,7876.0
+0.4,0,0.1,0,59,8572.0
+0.4,0,0.2,0,100,8570.0
+0.4,0,0.30000000000000004,0,53,8569.0

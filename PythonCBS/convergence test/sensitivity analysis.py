@@ -2,6 +2,16 @@ from placer import placement_optimization
 
 import csv
 
+# chunk_dependencies = [[],[0, 2],[],[],[3, 5],[],[],[6, 8], [],[],[9, 11],[],\
+#                       [0],[1,12,14],[2],[3],[4,15,17],[5],[6],[7,18,20],[8],[9],[10,21,23],[11]]
+    
+# chunk_job = [[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3],[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3]]
+
+# chunk_print_time = [2253., 2859., 1552., 2253., 2859., 1552., 2253., 2859., 1552., 2253., 2859., 1552., \
+#         1894, 2598, 1194, 1894, 2598, 1194, 1894, 2598, 1194, 1894, 2598, 1194]
+# robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
+# floor_size = [8,6]
+
 chunk_dependencies = [[],[0, 2],[],[],[3, 5],[],[],[6, 8], [],[],[9, 11],[],\
                       [0],[1,12,14],[2],[3],[4,15,17],[5],[6],[7,18,20],[8],[9],[10,21,23],[11]]
     
@@ -25,7 +35,7 @@ random_step = .1
 
 header = ['Chance Mutation', 'Chance Crossover', 'Percent Elite', 'Percent Random','Number of Generations','Best Value']
 
-with open("Sensitivity Analysis Percents.csv", "w") as file:
+with open("Sensitivity Analysis Percents Revised.csv", "w") as file:
     writer = csv.writer(file)
     writer.writerow(header)
     while percent_random <= 1:
