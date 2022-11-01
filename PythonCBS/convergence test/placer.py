@@ -326,13 +326,16 @@ def convergence_test(print_time_pop, num_pop, percent_random):
     convergence_pop = print_time_pop[:num_pop_convergence]
     average = mean(convergence_pop)
     
-    for individual in convergence_pop:
-        if individual >= average*(1-convergence_criteria/2) and individual <= average*(1+convergence_criteria/2):
-            convergence = True
-        else:
-            convergence = False
-            return(convergence)
-        
+    try:
+        for individual in convergence_pop:
+            if individual >= average*(1-convergence_criteria/2) and individual <= average*(1+convergence_criteria/2):
+                convergence = True
+            else:
+                convergence = False
+                return(convergence)
+    except UnboundLocalError:
+        convergence = False
+        return(convergence)
     # for individual in convergence_pop:
     #     if individual >= average-convergence_criteria/2 and individual <= average+convergence_criteria/2:
     #         convergence = True
