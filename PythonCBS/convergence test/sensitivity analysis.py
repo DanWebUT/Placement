@@ -23,9 +23,9 @@ robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
 floor_size = [8,6]
 
 
-chance_mutation = .05
+chance_mutation = .0
 mutation_step = .1
-chance_crossover = .4
+chance_crossover = 0
 crossover_step = .1
 # num_generations = 100
 percent_elite = .3
