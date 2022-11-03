@@ -23,14 +23,14 @@ robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
 floor_size = [8,6]
 
 
-chance_mutation = .4
+chance_mutation = .05
 mutation_step = .1
-chance_crossover = .3
+chance_crossover = .4
 crossover_step = .1
 # num_generations = 100
-percent_elite = 0
+percent_elite = .3
 elite_step = .1
-percent_random = 0 #percent of new randomly generated populateion
+percent_random = .3 #percent of new randomly generated populateion
 random_step = .1
 
 header = ['Chance Mutation', 'Chance Crossover', 'Percent Elite', 'Percent Random','Number of Generations','Best Value']
@@ -38,10 +38,10 @@ header = ['Chance Mutation', 'Chance Crossover', 'Percent Elite', 'Percent Rando
 with open("Sensitivity Analysis Percents Revised.csv", "w") as file:
     writer = csv.writer(file)
     writer.writerow(header)
-    while percent_random <= 1:
-        percent_elite = 0
-        while percent_elite <= 1:
-            chance_crossover = 0
+    while chance_crossover <= 1:
+        chance_mutation = 0
+        while chance_mutation <= 1:
+            # chance_crossover = 0
             # while chance_crossover <= 1:
             #     chance_mutation = 0
             #     while chance_mutation <= 1:
@@ -53,8 +53,8 @@ with open("Sensitivity Analysis Percents Revised.csv", "w") as file:
                     
                 #     chance_mutation += mutation_step
                 # chance_crossover += crossover_step
-            percent_elite += elite_step
-        percent_random += random_step
+            chance_mutation += mutation_step
+        chance_crossover += crossover_step
                     
                     
                     
