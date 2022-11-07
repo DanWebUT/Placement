@@ -28,14 +28,14 @@ mutation_step = .1
 chance_crossover = 0
 crossover_step = .1
 # num_generations = 100
-percent_elite = .3
+percent_elite = .6
 elite_step = .1
-percent_random = .3 #percent of new randomly generated populateion
+percent_random = .9 #percent of new randomly generated populateion
 random_step = .1
 
 header = ['Chance Mutation', 'Chance Crossover', 'Percent Elite', 'Percent Random','Number of Generations','Best Value']
 
-with open("Sensitivity Analysis Percents Revised.csv", "w") as file:
+with open("Sensitivity Analysis Chances Test.csv", "w") as file:
     writer = csv.writer(file)
     writer.writerow(header)
     while chance_crossover <= 1:
