@@ -61,6 +61,7 @@ def placement_vis(floor_size, chunk_positions, chunk_job):
         #draw job
         # random_color = np.round(np.random.rand(1,3)*255)
         cv2.rectangle(canvas, (min_x, min_y), (max_x, max_y), (int(colors[i][0]), int(colors[i][1]), int(colors[i][2])), thickness=-1)
+        
     
     
         

@@ -196,8 +196,8 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
         #FOR TESTING
         # print("Printable chunks" + str(printable_chunks))
         
-        # if printable_chunks == [16]:
-            # print("Debug Here")
+        # if printable_chunks == [12]:
+        #     print("Debug Here")
         
         #check if there is an available robot
         if min(robot_states) == 0:
@@ -208,6 +208,10 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
                 
                 #Update this method to take in all robot states and assigne the ones that are waiting
                 (robot_starting_positions, robot_goal_positions, printing_chunks, moving_robots) =  min_cost(robot_starting_positions, printable_chunk_robot_positions, printable_chunks, robot_schedules, robot_states)
+                
+                # if printable_chunks == [12]:
+                    # print("Debug Here")
+                
                 
                 #set non-moving robots as obstacles
                 if len(robot_states) - sum(robot_states) > len(moving_robots):
@@ -401,11 +405,11 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
                                 position = copy.deepcopy(robot_positions[robot])
                                 while np.any(np.all(np.array(position)==np.array(chunk_positions), axis = 1)) or np.any(np.all(np.array(position)==np.array(obstacles), axis = 1)):
                                     if dir_last_chunk[count] == 0:
-                                        position[1] += 1
+                                        position[1] -= 1
                                     elif dir_last_chunk[count] == 1:
                                         position[0] += 1
                                     elif dir_last_chunk[count] == 2:
-                                        position[1] -= 1
+                                        position[1] += 1
                                     elif dir_last_chunk[count] == 3:
                                            position[0] -= 1
                                 
@@ -594,31 +598,31 @@ if __name__ == '__main__':
                           [0],[1,8],[2],[3,10],[4],[5,12],[6],[7,14],\
                           [8],[9,16],[10],[11,18],[12],[13,20],[14],[15,22]]
     chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
-    chunk_positions = [[1, 1],
-     [2, 1],
-     [5, 1],
-     [6, 1],
-     [1, 5],
-     [2, 5],
-     [5, 5],
-     [6, 5],
-     [1, 2],
-     [2, 2],
-     [5, 2],
-     [6, 2],
-     [1, 6],
-     [2, 6],
-     [5, 6],
-     [6, 6],
-     [1, 3],
-     [2, 3],
+    chunk_positions = [[10, 1],
+     [10, 2],
+     [6, 4],
+     [7, 4],
      [5, 3],
-     [6, 3],
-     [1, 7],
+     [4, 3],
      [2, 7],
-     [5, 7],
-     [6, 7]]
-    job_directions = [2,2,2,2]
+     [1, 7],
+     [9, 1],
+     [9, 2],
+     [6, 5],
+     [7, 5],
+     [5, 2],
+     [4, 2],
+     [2, 6],
+     [1, 6],
+     [8, 1],
+     [8, 2],
+     [6, 6],
+     [7, 6],
+     [5, 1],
+     [4, 1],
+     [2, 5],
+     [1, 5]]
+    job_directions = [3, 2, 0, 0]
     chunk_print_time = [2253., 1899., 2253., 1899., 2253., 1899., 2253., 1899.,\
                         2929., 2490., 2929., 2490., 2929., 2490., 2929., 2490.,  \
                         1429., 1236., 1429., 1236., 1429., 1236., 1429., 1236.]
@@ -628,11 +632,39 @@ if __name__ == '__main__':
     #                       [0],[1,12,14],[2],[3],[4,15,17],[5],[6],[7,18,20],[8],[9],[10,21,23],[11]]
         
     # chunk_job = [[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3],[0],[0],[0],[1],[1],[1],[2],[2],[2],[3],[3],[3]]
+    # chunk_print_time = [2253., 2859., 1552., 2253., 2859., 1552., 2253., 2859., 1552., 2253., 2859., 1552., \
+    #         1894, 2598, 1194, 1894, 2598, 1194, 1894, 2598, 1194, 1894, 2598, 1194]
+        
+    # chunk_positions = [[11, 5],
+    #  [11, 4],
+    #  [11, 3],
+    #  [12, 10],
+    #  [12, 9],
+    #  [12, 8],
+    #  [5, 7],
+    #  [5, 6],
+    #  [5, 5],
+    #  [9, 11],
+    #  [8, 11],
+    #  [7, 11],
+    #  [12, 5],
+    #  [12, 4],
+    #  [12, 3],
+    #  [13, 10],
+    #  [13, 9],
+    #  [13, 8],
+    #  [6, 7],
+    #  [6, 6],
+    #  [6, 5],
+    #  [9, 10],
+    #  [8, 10],
+    #  [7, 10]]
+    # job_directions = [1, 1, 1, 0]
+    
     # job_directions = [2, 1, 3, 1]
     # chunk_positions = [[2, 9], [3, 9], [4, 9], [8, 9], [8, 8], [8, 7], [6, 2], [6, 3], [6, 4], [10, 5], [10, 4], [10, 3], [2, 10], [3, 10], [4, 10], [9, 9], [9, 8], [9, 7], [5, 2], [5, 3], [5, 4], [11, 5], [11, 4], [11, 3]]
     
-    # chunk_print_time = [89., 82., 89., 84., 85., 80., 83., 87., 86., 81., 82., 87., 84., 64., 67., 78., \
-    #         84., 94., 87., 49., 86., 89., 86., 83.]
+    
     robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
     floor_size = [8,6]
     
