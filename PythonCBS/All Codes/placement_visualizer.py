@@ -48,10 +48,10 @@ def placement_vis(floor_size, chunk_positions, chunk_job):
         for j in range(0,len(job_positions)):
             x_positions.append(job_positions[j][0])
             y_positions.append(job_positions[j][1])
-        min_x_grid = min(x_positions)
-        max_x_grid = max(x_positions)+1
-        min_y_grid = min(y_positions)
-        max_y_grid = max(y_positions)+1
+        min_x_grid = int(min(x_positions))
+        max_x_grid = int(max(x_positions)+1)
+        min_y_grid = int(min(y_positions))
+        max_y_grid = int(max(y_positions)+1)
         
         min_x = min_x_grid*size_multiplier + start_offest
         min_y = min_y_grid*size_multiplier + start_offest
@@ -60,9 +60,20 @@ def placement_vis(floor_size, chunk_positions, chunk_job):
         
         #draw job
         # random_color = np.round(np.random.rand(1,3)*255)
-        cv2.rectangle(canvas, (min_x, min_y), (max_x, max_y), (int(colors[i][0]), int(colors[i][1]), int(colors[i][2])), thickness=-1)
+        cv2.rectangle(canvas, (min_x, min_y), (max_x, max_y), (int(colors[i][0]),int(colors[i][1]),int(colors[i][2])), thickness=-1)
         
-    
+        #show initial chunk
+        initial_x_grid_start = int(job_positions[0][0])
+        initial_x_grid_end = int(job_positions[0][0] + 1)
+        initial_y_grid_start = int(job_positions[0][1])
+        initial_y_grid_end = int(job_positions[0][1] + 1)
+        
+        initial_x_start = initial_x_grid_start*size_multiplier + start_offest
+        initial_x_end = initial_x_grid_end*size_multiplier + start_offest
+        initial_y_start = initial_y_grid_start*size_multiplier + start_offest
+        initial_y_end = initial_y_grid_end*size_multiplier + start_offest
+        
+        cv2.rectangle(canvas, (initial_x_start, initial_y_start), (initial_x_end, initial_y_end), (255,165,0), thickness=4)
     
         
     #show and delete image
@@ -74,13 +85,40 @@ def placement_vis(floor_size, chunk_positions, chunk_job):
 # #TEST configuration 
 # floor_size = [8,6]
 
+# chunk_positions = [[7.0, 4.0],
+#  [8.0, 4.0],
+#  [5.0, 2.0],
+#  [5.0, 1.0],
+#  [2.0, 4.0],
+#  [1.0, 4.0],
+#  [3.0, 8.0],
+#  [3.0, 9.0],
+#  [7.0, 5.0],
+#  [8.0, 5.0],
+#  [6.0, 2.0],
+#  [6.0, 1.0],
+#  [2.0, 3.0],
+#  [1.0, 3.0],
+#  [2.0, 8.0],
+#  [2.0, 9.0],
+#  [7.0, 6.0],
+#  [8.0, 6.0],
+#  [7.0, 2.0],
+#  [7.0, 1.0],
+#  [2.0, 2.0],
+#  [1.0, 2.0],
+#  [1.0, 8.0],
+#  [1.0, 9.0]]
+
+# chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
+
 # # chunk_positions = [[0,5],[1,5],[13,1],[14,1],[5,3],[5,2],[9,4],[9,5],\
 # #                     [0,4],[1,4],[13,2],[14,2],[6,3],[6,2],[10,4],[10,5],\
 # #                     [0,3],[1,3],[13,3],[14,3],[7,3],[7,2],[11,4],[11,5],]
 
-# chunk_positions = [[6, 3], [5, 3], [6, 5], [7, 5], [12, 0], [13, 0], [2, 4], [1, 4], [6, 2], [5, 2], [6, 6], [7, 6], [12, 1], [13, 1], [2, 3], [1, 3], [6, 1], [5, 1], [6, 7], [7, 7], [12, 2], [13, 2], [2, 2], [1, 2]]
+# # chunk_positions = [[6, 3], [5, 3], [6, 5], [7, 5], [12, 0], [13, 0], [2, 4], [1, 4], [6, 2], [5, 2], [6, 6], [7, 6], [12, 1], [13, 1], [2, 3], [1, 3], [6, 1], [5, 1], [6, 7], [7, 7], [12, 2], [13, 2], [2, 2], [1, 2]]
 
-# chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
+# # chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
 
 # placement_vis(floor_size, chunk_positions, chunk_job)
 

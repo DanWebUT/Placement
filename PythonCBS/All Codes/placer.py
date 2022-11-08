@@ -320,9 +320,12 @@ def create_random_configuration(floor_size, chunk_dependencies, chunk_job, robot
         number_attempts += 1
         job_directions = job_directions[0]
         if valid_positions == True:
-            print_direction = chunk_print_direction(job_directions, chunk_job)     
-            (total_print_time, path_error) = schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
-            if path_error == True:
+            try:
+                print_direction = chunk_print_direction(job_directions, chunk_job)     
+                (total_print_time, path_error) = schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
+                if path_error == True:
+                    valid_positions = False
+            except IndexError:
                 valid_positions = False
     
     #For visualization
@@ -460,37 +463,59 @@ if __name__ == '__main__':
                 #mutation
                 mutation = False
                 if rand() < chance_mutation:
-                    mutation = True
-                    #generate random location
-                    mutation_location = int(floor(rand()*len(child)))
-                    
-                    if rand() < .5:
-                        new_val = child[mutation_location] + 1
+                    #choose either single point mutation, or all of one type of gener
+                    if rand() < .7:
+                        #single point mutation
+                        mutation = True
+                        #generate random location
+                        mutation_location = int(floor(rand()*len(child)))
+                        
+                        if rand() < .5:
+                            new_val = child[mutation_location] + 1
+                        else:
+                            new_val = child[mutation_location] - 1
+                        #generate change within bounds of that number
+                        if (mutation_location)%3 == 0 and (new_val >= (floor_size[0]*2) or new_val < 0):
+                            new_val = int(new_val%(floor_size[0]*2))
+                        elif (mutation_location+2)%3 == 0 and (new_val >= (floor_size[1]*2) or new_val < 0):
+                            new_val = int(new_val%(floor_size[1]*2))
+                        elif (mutation_location+1)%3 == 0 and (new_val >= 4 or new_val < 0):
+                            new_val = int(new_val%4)
+                        
+                        
+                        # print("Mutation at " + str(mutation_location) + " from " +str(child[mutation_location])+" to " +str(new_val))
+                        child[mutation_location] = new_val
+                        
                     else:
-                        new_val = child[mutation_location] - 1
-                    #generate change within bounds of that number
-                    if (mutation_location)%3 == 0 and (new_val >= (floor_size[0]*2) or new_val < 0):
-                        new_val = int(new_val%(floor_size[0]*2))
-                    elif (mutation_location+2)%3 == 0 and (new_val >= (floor_size[1]*2) or new_val < 0):
-                        new_val = int(new_val%(floor_size[1]*2))
-                    elif (mutation_location+1)%3 == 0 and (new_val >= 4 or new_val < 0):
-                        new_val = int(new_val%4)
-                    
-                    
-                    # print("Mutation at " + str(mutation_location) + " from " +str(child[mutation_location])+" to " +str(new_val))
-                    child[mutation_location] = new_val
-                    
+                        mutation = True
+                        #figure out which of 3 gene types to vary
+                        mutation_gene = int(floor(rand()*3))
+                        #set change up or down
+                        if rand() < .5: 
+                            change = 1
+                        else:
+                            change = -1
+                        
+                        #set each gene in new robot
+                        for gene in range(0,len(robot_starting_positions)):
+                            mutation_location = mutation_gene + gene*3
+                            child[mutation_location] = child[mutation_location] + change
                     
                 #check validity 
                 chunk_dep_iteration = deepcopy(chunk_dependencies)
                 (child_job_starting_positions, child_job_directions) = gene_to_tuple(child)
                 (chunk_positions, valid_positions) = place_chunks(child_job_starting_positions, [child_job_directions], chunk_job, chunk_dep_iteration, floor_size, robot_starting_positions)
                 if valid_positions == True:
-                    print_direction = chunk_print_direction(child_job_directions, chunk_job)     
-                    (total_print_time, path_error) = schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
-                    if path_error == True:
+                    try:
+                        print_direction = chunk_print_direction(child_job_directions, chunk_job)     
+                        (total_print_time, path_error) = schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
+                        if path_error == True:
+                            valid_positions = False
+                    except IndexError:
                         valid_positions = False
-                
+                    except UnboundLocalError:
+                        valid_positions = False
+                        
                 iteration_count += 1
             
             #if child does not form in 100 iterations, pick parent one to move to next generation
