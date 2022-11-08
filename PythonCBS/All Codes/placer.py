@@ -30,10 +30,10 @@ THIS PLACEMENT METHOD IS ONLY APPLICABLE FOR RECTANGULAR JOBS THAT HAVE THE SAME
 CHUNKS IN EACH ROW AND COLUMN
 """
 # # inputs
-test_case = 'Tall Box 8 Chunks'
+test_case = 'Tall Box 8 Jobs'
 num_robots = 4
 floor_size = [8,6]
-folder_name = "Tall_Box_8_Chunks"
+folder_name = "Tall_Box_8_Jobs"
 
 robot_starting_positions_all = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0]]
 robot_starting_positions = robot_starting_positions_all[:num_robots]
@@ -48,7 +48,7 @@ if test_case == 'Tall Box':
                         2929., 2490., 2929., 2490., 2929., 2490., 2929., 2490.,  \
                         1429., 1236., 1429., 1236., 1429., 1236., 1429., 1236.]
 
-elif test_case == 'Tall Box 6 Chunks':
+elif test_case == 'Tall Box 6 Jobs':
     # six equal jobs of 6 chunks
     chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],[],[8],[],[10],\
                           [0],[1,12],[2],[3,14],[4],[5,16],[6],[7,18],[8],[9,20],[10],[11,22],\
@@ -58,7 +58,7 @@ elif test_case == 'Tall Box 6 Chunks':
                         2081.,1638.,2081.,1638.,2081.,1638.,2081.,1638.,2081.,1638.,2081.,1638.,  \
                         1132.,894.,1132.,894.,1132.,894.,1132.,894.,1132.,894.,1132.,894.]
 
-elif test_case == 'Tall Box 8 Chunks':
+elif test_case == 'Tall Box 8 Jobs':
     # eight equal jobs of 6 chunks
     chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],[],[8],[],[10],[],[12],[],[14],\
                           [0],[1,16],[2],[3,18],[4],[5,20],[6],[7,22],[8],[9,24],[10],[11,26],[12],[13,28],[14],[15,30],\
@@ -68,7 +68,7 @@ elif test_case == 'Tall Box 8 Chunks':
                         1659.,1261.,1659.,1261.,1659.,1261.,1659.,1261.,1659.,1261.,1659.,1261.,1659.,1261.,1659.,1261.,\
                         951.,723.,951.,723.,951.,723.,951.,723.,951.,723.,951.,723.,951.,723.,951.,723.]
 
-elif test_case == 'Tall Job Rotated':
+elif test_case == 'Tall Box Rotated':
     # #four equal jobs of 6 chunks rotated 90 degrees
     chunk_dependencies = [[],[0, 2],[],[],[3, 5],[],[],[6, 8], [],[],[9, 11],[],\
                           [0],[1,12,14],[2],[3],[4,15,17],[5],[6],[7,18,20],[8],[9],[10,21,23],[11]]
