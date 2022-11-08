@@ -15,7 +15,7 @@ def placement_vis(floor_size, chunk_positions, chunk_job):
     disp_mult = 100
     size_multiplier = 75
     start_offest = 100   
-    colors = [[0,0,0],[0,0,255],[0,255,0],[255,0,0]]
+    colors = [[0,0,0],[0,0,255],[0,255,0],[255,0,0],[0,150,150],[150,150,0],[150,0,150],[150,150,150]]
     
     #create window
     cv2.namedWindow('placement', cv2.WINDOW_NORMAL)
