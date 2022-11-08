@@ -16,18 +16,25 @@ from scheduler import schedule
 #input starting chunks direction
 # job_directions = [[2, 2, 2, 2]]
 
-job_starting_posiitons = array([[2, 3],
-       [4, 3],
-       [2, 5],
-       [8, 2]])
-job_directions = [[0, 1, 2, 1]]
+job_starting_posiitons = array([[1,0],
+       [6, 0],
+       [11, 0],
+       [17, 0],
+       [3, 10],
+       [9, 10],])
+job_directions = [[2,2,2,2,2,2]]
 
 #other inputs
 #Tall Job
-chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
-                      [0],[1,8],[2],[3,10],[4],[5,12],[6],[7,14],\
-                      [8],[9,16],[10],[11,18],[12],[13,20],[14],[15,22]]
-chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
+# chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
+#                       [0],[1,8],[2],[3,10],[4],[5,12],[6],[7,14],\
+#                       [8],[9,16],[10],[11,18],[12],[13,20],[14],[15,22]]
+# chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3]]
+#6 jobs
+chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],[],[8],[],[10],\
+                      [0],[1,12],[2],[3,14],[4],[5,16],[6],[7,18],[8],[9,20],[10],[11,22],\
+                      [12],[13,24],[14],[15,26],[16],[17,28],[18],[19,30],[20],[21,32],[22],[23,34]]
+chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[4],[4],[5],[5],[0],[0],[1],[1],[2],[2],[3],[3],[4],[4],[5],[5],[0],[0],[1],[1],[2],[2],[3],[3],[4],[4],[5],[5]]
 
 # #rotated tall box
 # chunk_dependencies = [[],[0, 2],[],[],[3, 5],[],[],[6, 8], [],[],[9, 11],[],\
@@ -55,11 +62,11 @@ chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[3],[3],[0]
 
 
 robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
-floor_size = [8,6]
+floor_size = [12,10]
 
 #create other chunks
 (chunk_positions, valid_positions) = place_chunks(job_starting_posiitons, job_directions, chunk_job, chunk_dependencies, floor_size, robot_starting_positions)
 
 #visualize placement
-placement_vis(floor_size, chunk_positions, chunk_job)
+# placement_vis(floor_size, chunk_positions, chunk_job)
 

@@ -30,7 +30,7 @@ THIS PLACEMENT METHOD IS ONLY APPLICABLE FOR RECTANGULAR JOBS THAT HAVE THE SAME
 CHUNKS IN EACH ROW AND COLUMN
 """
 # # inputs
-# four equal jobs of 6 chunks
+# # four equal jobs of 6 chunks
 # chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
 #                       [0],[1,8],[2],[3,10],[4],[5,12],[6],[7,14],\
 #                       [8],[9,16],[10],[11,18],[12],[13,20],[14],[15,22]]
@@ -40,6 +40,19 @@ CHUNKS IN EACH ROW AND COLUMN
 #                     1429., 1236., 1429., 1236., 1429., 1236., 1429., 1236.]
 # robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
 # floor_size = [8,6]
+
+# six equal jobs of 6 chunks
+chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],[],[8],[],[10],\
+                      [0],[1,12],[2],[3,14],[4],[5,16],[6],[7,18],[8],[9,20],[10],[11,22],\
+                      [12],[13,24],[14],[15,26],[16],[17,28],[18],[19,30],[20],[21,32],[22],[23,34]]
+chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[4],[4],[5],[5],[0],[0],[1],[1],[2],[2],[3],[3],[4],[4],[5],[5],[0],[0],[1],[1],[2],[2],[3],[3],[4],[4],[5],[5]]
+chunk_print_time = [1740.,1360.,1740.,1360.,1740.,1360.,1740.,1360.,1740.,1360.,1740.,1360.,\
+                    2081.,1638.,2081.,1638.,2081.,1638.,2081.,1638.,2081.,1638.,2081.,1638.,  \
+                    1132.,894.,1132.,894.,1132.,894.,1132.,894.,1132.,894.,1132.,894.,]
+robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
+floor_size = [8,6]
+
+
 
 # # #four equal jobs of 6 chunks rotated 90 degrees
 # chunk_dependencies = [[],[0, 2],[],[],[3, 5],[],[],[6, 8], [],[],[9, 11],[],\
@@ -72,16 +85,16 @@ CHUNKS IN EACH ROW AND COLUMN
 # floor_size = [8,6]
 # robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
 
-#Resized Benchy
-chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
-                      [0],[1,8],[2],[3,10],[4],[5,12],\
-                      [8],[9,14],[10],[11,16]]
-chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[0],[0],[1],[1]]
-chunk_print_time = [1152., 655., 1075., 722., 279., 86., 1139., 81.,\
-                    2039., 1496., 716., 564., 561., 146.,  \
-                    561., 217., 8., 8.]
-robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
-floor_size = [8,6]
+# #Resized Benchy
+# chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],\
+#                       [0],[1,8],[2],[3,10],[4],[5,12],\
+#                       [8],[9,14],[10],[11,16]]
+# chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[0],[0],[1],[1],[2],[2],[0],[0],[1],[1]]
+# chunk_print_time = [1152., 655., 1075., 722., 279., 86., 1139., 81.,\
+#                     2039., 1496., 716., 564., 561., 146.,  \
+#                     561., 217., 8., 8.]
+# robot_starting_positions = [[0,0],[1,0],[2,0],[3,0]]
+# floor_size = [8,6]
 
 # job_directions = [2,2,2,2]
 # chunk_positions = [[1,1],[2,1],[3,1],[6,1],[7,1],[8,1],[11,1],[12,1],[12,8],\
@@ -499,7 +512,16 @@ if __name__ == '__main__':
                         #set each gene in new robot
                         for gene in range(0,len(robot_starting_positions)):
                             mutation_location = mutation_gene + gene*3
-                            child[mutation_location] = child[mutation_location] + change
+                            new_val = child[mutation_location] + change
+                            
+                            if (mutation_location)%3 == 0 and (new_val >= (floor_size[0]*2) or new_val < 0):
+                                new_val = int(new_val%(floor_size[0]*2))
+                            elif (mutation_location+2)%3 == 0 and (new_val >= (floor_size[1]*2) or new_val < 0):
+                                new_val = int(new_val%(floor_size[1]*2))
+                            elif (mutation_location+1)%3 == 0 and (new_val >= 4 or new_val < 0):
+                                new_val = int(new_val%4)
+                                
+                            child[mutation_location] = new_val
                     
                 #check validity 
                 chunk_dep_iteration = deepcopy(chunk_dependencies)
