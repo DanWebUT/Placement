@@ -30,10 +30,10 @@ THIS PLACEMENT METHOD IS ONLY APPLICABLE FOR RECTANGULAR JOBS THAT HAVE THE SAME
 CHUNKS IN EACH ROW AND COLUMN
 """
 # # inputs
-test_case = 'Tall Box 8 Jobs'
+test_case = 'Tall Box 5 Jobs'
 num_robots = 4
 floor_size = [8,6]
-folder_name = "Tall_Box_8_Jobs"
+folder_name = "Tall_Box_5_Jobs"
 
 robot_starting_positions_all = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0]]
 robot_starting_positions = robot_starting_positions_all[:num_robots]
@@ -47,6 +47,16 @@ if test_case == 'Tall Box':
     chunk_print_time = [2253., 1899., 2253., 1899., 2253., 1899., 2253., 1899.,\
                         2929., 2490., 2929., 2490., 2929., 2490., 2929., 2490.,  \
                         1429., 1236., 1429., 1236., 1429., 1236., 1429., 1236.]
+        
+elif test_case == 'Tall Box 5 Jobs':
+    # six equal jobs of 6 chunks
+    chunk_dependencies = [[],[0],[],[2],[],[4],[],[6],[],[8],\
+                          [0],[1,10],[2],[3,12],[4],[5,14],[6],[7,16],[8],[9,18],\
+                          [10],[11,20],[12],[13,22],[14],[15,24],[16],[17,26],[18],[19,28]]
+    chunk_job = [[0],[0],[1],[1],[2],[2],[3],[3],[4],[4],[0],[0],[1],[1],[2],[2],[3],[3],[4],[4],[0],[0],[1],[1],[2],[2],[3],[3],[4],[4]]
+    chunk_print_time = [1954.,1579.,1954.,1579.,1954.,1579.,1954.,1579.,1954.,1579.,\
+                        2417.,1967.,2417.,1967.,2417.,1967.,2417.,1967.,2417.,1967.,  \
+                        1259.,1035.,1259.,1035.,1259.,1035.,1259.,1035.,1259.,1035.,]
 
 elif test_case == 'Tall Box 6 Jobs':
     # six equal jobs of 6 chunks
