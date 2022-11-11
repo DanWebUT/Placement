@@ -418,6 +418,8 @@ def create_random_configuration(floor_size, chunk_dependencies, chunk_job, robot
                 (total_print_time, path_error) = schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
                 if path_error == True:
                     valid_positions = False
+                if total_print_time < (sum(chunk_print_time)/num_robots):
+                    valid_positions = False
             except IndexError:
                 valid_positions = False
     
@@ -617,6 +619,8 @@ if __name__ == '__main__':
                         print_direction = chunk_print_direction(child_job_directions, chunk_job)     
                         (total_print_time, path_error) = schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
                         if path_error == True:
+                            valid_positions = False
+                        if total_print_time < (sum(chunk_print_time)/num_robots):
                             valid_positions = False
                     except IndexError:
                         valid_positions = False
