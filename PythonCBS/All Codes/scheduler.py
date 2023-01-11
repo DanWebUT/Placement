@@ -168,7 +168,7 @@ def vertices_to_obsts(obsts):
 
 
 #For testing of this method
-def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job, chunk_print_time, chunk_positions, print_direction):
+def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job, chunk_print_time, chunk_positions, print_direction, request_schedule):
     robot_schedules = [[]]
     for i in range(0,len(robot_starting_positions)-1):
         robot_schedules.append([])
@@ -593,8 +593,10 @@ def schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job
     total_print_time = elapsed_time
     
     # print("Total Print Time: "+str(total_print_time))
-    
-    return(total_print_time, path_error)
+    if request_schedule == True:
+        return(total_print_time, path_error,robot_schedules)
+    else:
+        return(total_print_time, path_error)
     
     
 

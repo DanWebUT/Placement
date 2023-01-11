@@ -30,12 +30,12 @@ THIS PLACEMENT METHOD IS ONLY APPLICABLE FOR RECTANGULAR JOBS THAT HAVE THE SAME
 CHUNKS IN EACH ROW AND COLUMN
 """
 # # inputs
-test_case = 'Tall Box'
-num_robots = 4
-floor_size = [8,6]
-folder_name = "Tall_Box_Scale_1"
+test_case = 'Longhorn Logo'
+num_robots = 3
+floor_size = [8,3]
+folder_name = "Longhorn Logo Results"
 
-track_time = True
+track_time = False
 
 if test_case == 'Tall Box':
     # four equal jobs of 6 chunks
@@ -46,7 +46,15 @@ if test_case == 'Tall Box':
     chunk_print_time = [2253., 1899., 2253., 1899., 2253., 1899., 2253., 1899.,\
                         2929., 2490., 2929., 2490., 2929., 2490., 2929., 2490.,  \
                         1429., 1236., 1429., 1236., 1429., 1236., 1429., 1236.]
-        
+    
+elif test_case == 'Longhorn Logo':
+    #3 Layer Longhorn Logo Physical Demonstration
+    chunk_dependencies = [[], [0,2], [], [], [3,5], [], [], [6,8], [0]]
+    chunk_job = [[0], [0], [0], [1], [1], [1], [2], [2], [2]]
+    chunk_print_time = [2253., 1899., 2253.,\
+                        2929., 2490., 2929.,\
+                        1429., 1236., 1429.]
+    
 elif test_case == 'Tall Box .5x':
     #Scaled x1.5
     chunk_dependencies = [[], [0], [], [2], [0], [1, 4], [2], [3, 6], [4], [5, 8], [6], [7, 10]]
@@ -415,7 +423,7 @@ def create_random_configuration(floor_size, chunk_dependencies, chunk_job, robot
         if valid_positions == True:
             try:
                 print_direction = chunk_print_direction(job_directions, chunk_job)     
-                (total_print_time, path_error) = schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
+                (total_print_time, path_error) = schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction, False)
                 if path_error == True:
                     valid_positions = False
                 if total_print_time < (sum(chunk_print_time)/num_robots):
@@ -480,6 +488,7 @@ if __name__ == '__main__':
     config_filename = "Configurations"
     complete_filename = os.path.join(filepath, filename +".txt")
     config_complete_filename = os.path.join(filepath, config_filename +".txt")
+    results_filename = os.path.join(filepath, "Results.txt")
     
     #track time
     if track_time == True:
@@ -617,7 +626,7 @@ if __name__ == '__main__':
                 if valid_positions == True:
                     try:
                         print_direction = chunk_print_direction(child_job_directions, chunk_job)     
-                        (total_print_time, path_error) = schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction)
+                        (total_print_time, path_error) = schedule(robot_starting_positions, floor_size, chunk_dep_iteration, chunk_job, chunk_print_time, chunk_positions, print_direction, False)
                         if path_error == True:
                             valid_positions = False
                         if total_print_time < (sum(chunk_print_time)/num_robots):
@@ -680,6 +689,20 @@ if __name__ == '__main__':
         convergence = convergence_test(print_time_pop, num_pop, percent_random)
     
     if convergence == True:
+        #Find schedule of best and print results
+        final = list_genes(sorted_population_tuple[0])
+        (final_job_starting_positions, final_job_directions) = gene_to_tuple(final)
+        (chunk_positions, valid_positions) = place_chunks(final_job_starting_positions, [final_job_directions], chunk_job, chunk_dependencies, floor_size, robot_starting_positions)
+        (total_print_time, path_error, robot_schedules) = schedule(robot_starting_positions, floor_size, chunk_dependencies, chunk_job, chunk_print_time, chunk_positions, print_direction, True)
+        
+        with open(results_filename, "a+") as file:
+            file.write("Total Print Time: \n")
+            file.write(total_print_time)
+            file.write("Robot Schedules: \n")
+            file.write(robot_schedules)
+            
+        
+        #Print Results
         print("Converged in " + str(generation-1) + " generations!")
         with open(config_complete_filename, "a+") as file:
             file.write("Converged in " + str(generation) + " generations!")
