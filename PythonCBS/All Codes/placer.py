@@ -51,9 +51,9 @@ elif test_case == 'Longhorn Logo':
     #3 Layer Longhorn Logo Physical Demonstration
     chunk_dependencies = [[], [0,2], [], [], [3,5], [], [], [6,8], [0]]
     chunk_job = [[0], [0], [0], [1], [1], [1], [2], [2], [2]]
-    chunk_print_time = [2253., 1899., 2253.,\
-                        2929., 2490., 2929.,\
-                        1429., 1236., 1429.]
+    chunk_print_time = [183., 248., 29.,\
+                        64., 94., 42.,\
+                        49., 68., 50.]
     
 elif test_case == 'Tall Box .5x':
     #Scaled x1.5
