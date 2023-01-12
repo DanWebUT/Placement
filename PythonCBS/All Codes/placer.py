@@ -49,7 +49,7 @@ if test_case == 'Tall Box':
     
 elif test_case == 'Longhorn Logo':
     #3 Layer Longhorn Logo Physical Demonstration
-    chunk_dependencies = [[], [0,2], [], [], [3,5], [], [], [6,8], [0]]
+    chunk_dependencies = [[], [0,2], [], [], [3,5], [], [], [6,8], []]
     chunk_job = [[0], [0], [0], [1], [1], [1], [2], [2], [2]]
     chunk_print_time = [183., 248., 29.,\
                         64., 94., 42.,\
@@ -292,7 +292,9 @@ def place_chunks(job_starting_posiitons, print_direction, chunk_job, chunk_depen
                 else:
                     row_width = chunks_in_job[job].index(last_indep) - chunks_in_job[job].index(initial_chunks[job]) +1
             except IndexError:
-                print("What went wrong")
+                #Check if the job only has one row
+                if (chunks_in_job[job].index(last_indep)+1) >= len(chunks_in_job[job]):
+                    row_width = len(chunks_in_job[job])
                 
         #find column length
         column_length = int(len(chunks_in_job[job])/row_width)
